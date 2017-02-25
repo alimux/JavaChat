@@ -25,7 +25,8 @@ public class Constants {
     public final static String JFRAMETITLE = "Java chat";
     public static final String BUTTON_LABEL = "Envoyer";
     
-    //path
-    public final static String RESOURCES_PATH = "build/classes/dnr2i/chat/resources/";
+    //connexion
+    public final static String SERVER = "localhost";
+    public final static int PORT = 5555;
 
 }
