@@ -3,12 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package dnr2i.chat.gui.message;
+package dnr2i.util.event;
 
 /**
  *
- * @author alex2
+ * @author user
  */
-public class Message {
+public interface ModelListener {
+    
+    public void modelChanged(Object source);
     
 }

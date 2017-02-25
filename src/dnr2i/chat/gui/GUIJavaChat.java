@@ -1,29 +1,30 @@
 package dnr2i.chat.gui;
 
+import dnr2i.chat.gui.message.Messages;
+import dnr2i.chat.gui.socket.Connection;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
-import java.io.File;
-import java.io.IOException;
+import java.net.Socket;
 import java.net.URL;
 import javax.swing.*;
 import javax.swing.border.Border;
 
 
-public class GUIJavaChat extends JFrame {
+public class GUIJavaChat extends JFrame implements Runnable{
 
-    private TopPanel topPanel;
-    private DownPanel downPanel;
+    private final TopPanel topPanel;
+    private final DownPanel downPanel;
     private String loginName;
     private URL imgURL;
     private ImageIcon icon;
+    private Connection connection;
+    private Socket socket;
+    private Messages messages; 
     
 
     /**
      * constructor call initFrame
-     *
-     * @throws HeadlessException
-     * @throws java.io.IOException
      */
     public GUIJavaChat() {
         
@@ -89,9 +90,18 @@ public class GUIJavaChat extends JFrame {
         } else {
             loginName = loginBox;
             setVisible(true);
+            connection = new Connection();
+            socket = connection.getSocket();
         }
         System.out.println("Login : " + loginName);
 
+    }
+
+    @Override
+    public void run() {
+        messages = new Messages(socket);
+        
+        
     }
 
 }

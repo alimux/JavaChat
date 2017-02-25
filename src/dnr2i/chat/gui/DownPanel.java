@@ -6,13 +6,17 @@ package dnr2i.chat.gui;
  * Class wich defines the Down panel with textfield and send button
  */
 
+import dnr2i.util.event.ModelListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.*;
 
 
-public class DownPanel extends JPanel{
+public class DownPanel extends JPanel implements ActionListener{
     
     private JButton send;
     private JTextField input;
+    private String messageOutcoming;
 
     /**
      * constructor call initPanel Method
@@ -54,7 +58,35 @@ public class DownPanel extends JPanel{
                 .addContainerGap())
         
         );
+        
+        send.addActionListener(this);
       
     }
+    /**
+     * implements ActionListener, manage send click
+     * @param e 
+     */
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        
+        Object source = e.getSource();
+        if(source==send){
+            messageOutcoming = input.getText();
+            System.out.println("message entré dans la zone de texte : "+messageOutcoming);
+            
+        }
+        
+    }
+    /**
+     * getter MessageOutComing
+     * @return String
+     */
+    public String getMessageOutcoming() {
+        return messageOutcoming;
+    }
+    
+    
+
+   
         
 }
