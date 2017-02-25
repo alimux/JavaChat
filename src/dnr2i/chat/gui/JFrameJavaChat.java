@@ -3,6 +3,7 @@ package dnr2i.chat.gui;
 
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.HeadlessException;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -17,21 +18,19 @@ public class JFrameJavaChat extends JFrame{
     private GUIJavaChat gui;
     private InputPanel inputPanel;
     
-    //Definition of the size of the window
-    private final static int WIDTH = 850;
-    private final static int HEIGHT = 600;
-    //title of the window
-    private final static String TITLE = "Java chat";
+    private String loginName;
+    
+
 
     public JFrameJavaChat() throws HeadlessException {
-        super(TITLE);
+        super(Constants.TITLE);
         gui = new GUIJavaChat();
         inputPanel = new InputPanel();
-        initialize();
+        initFrame();
         
     }
     
-    public void initialize(){
+    public void initFrame(){
         
         //adding panels
         
@@ -44,13 +43,23 @@ public class JFrameJavaChat extends JFrame{
       
         this.getContentPane().add(mainPanel);
         
+        //JFrame options
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         pack();
         setVisible(false);
-        this.setSize(WIDTH, HEIGHT);
+        this.setPreferredSize(new Dimension(Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT));
+        this.setSize(Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT);
+        this.setBounds(0, 0, Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT);
         this.setLocationRelativeTo(null);
         
-        String login = (String)JOptionPane.showInputDialog(
+        //login
+        login();  
+            
+    }
+    
+    private void login(){
+        //Input dialog of login
+        loginName = (String)JOptionPane.showInputDialog(
                     this,
                     "Entrez votre login",
                     "Login",
@@ -59,20 +68,15 @@ public class JFrameJavaChat extends JFrame{
                     null,
                     "");
         //if login isNull exit, else display the main Frame
-        if(login==null){
+        if(loginName==null){
             System.exit(0);
         }
         else{
             setVisible(true);
         }
         
-        System.out.println("Login : "+login);
+        System.out.println("Login : "+loginName);
         
-        
-            
     }
-    
-    
-  
     
 }
