@@ -1,49 +1,82 @@
 
 package dnr2i.chat.gui;
 
-import java.awt.*;
-import javax.swing.*;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.HeadlessException;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.border.Border;
 
-public class GUIJavaChat extends JPanel{
+
+public class GUIJavaChat extends JFrame{
     
-    private JTextArea displayPublicMessage;
-    private JList usersList;
-    private JSplitPane splitPane;
-    private static final int LOCATION=100;
+    private TopPanel gui;
+    private DownPanel inputPanel;
+    
+    private String loginName;
     
 
-    public GUIJavaChat() {    
-        initPanel();
+
+    public GUIJavaChat() throws HeadlessException {
+        super(Constants.JFRAMETITLE);
+        gui = new TopPanel();
+        inputPanel = new DownPanel();
+        initFrame();
+        
     }
     
-    public void initPanel(){
-      System.out.println("affichage du fond");
-      this.setBackground(Color.DARK_GRAY);
-     
-      //set Layout
-      this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
-      //defining the public message area
-      displayPublicMessage = new JTextArea(25,52);
-      JScrollPane scrollPane = new JScrollPane(displayPublicMessage);
-      displayPublicMessage.setEditable(false);
+    public void initFrame(){
+        
+        //adding panels
+        
+        Box mainPanel = Box.createVerticalBox();
+        
+        Border blackLine = BorderFactory.createLineBorder(Color.BLACK);
+        mainPanel.setBorder(blackLine);
+        mainPanel.add(gui);
+        mainPanel.add(inputPanel);
       
-      //defining the users list
-      usersList= new JList();
-      usersList.setLayoutOrientation(JList.VERTICAL);
-      
-      //initialize JsplitaPane
-      splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, scrollPane, usersList);
-      splitPane.setDividerLocation(this.getWidth()-LOCATION);
-      this.add(splitPane);
+        this.getContentPane().add(mainPanel);
+        
+        //JFrame options
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        pack();
+        setVisible(false);
+        this.setPreferredSize(new Dimension(Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT));
+        this.setSize(Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT);
+        this.setBounds(0, 0, Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT);
+        this.setLocationRelativeTo(null);
+        
+        //login
+        login();  
+            
     }
     
-
-    
-    
-    
-    
-    
-    
-    
+    private void login(){
+        //Input dialog of login
+        loginName = (String)JOptionPane.showInputDialog(
+                    this,
+                    "Entrez votre login",
+                    "Login",
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    null,
+                    "");
+        //if login isNull exit, else display the main Frame
+        if(loginName==null){
+            System.exit(0);
+        }
+        else{
+            setVisible(true);
+        }
+        
+        System.out.println("Login : "+loginName);
+        
+    }
     
 }

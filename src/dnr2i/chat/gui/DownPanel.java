@@ -9,7 +9,7 @@ package dnr2i.chat.gui;
 import javax.swing.*;
 
 
-public class InputPanel extends JPanel{
+public class DownPanel extends JPanel{
     
     private JButton send;
     private JTextField input;
@@ -17,7 +17,7 @@ public class InputPanel extends JPanel{
     /**
      * constructor call initPanel Method
      */
-    public InputPanel() {
+    public DownPanel() {
   
         initPanel();
         System.out.println("taille :"+GroupLayout.PREFERRED_SIZE);
@@ -36,9 +36,9 @@ public class InputPanel extends JPanel{
         layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                 .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(input, GroupLayout.PREFERRED_SIZE, Constants.TEXTFIELD_WIDTH, GroupLayout.PREFERRED_SIZE)
+                .addComponent(input, GroupLayout.PREFERRED_SIZE, Constants.MESSAGEINPUT_WIDTH, GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, Constants.GAP_WIDTH, Short.MAX_VALUE)
-                .addComponent(send, GroupLayout.PREFERRED_SIZE, Constants.BUTTON_WIDTH, GroupLayout.PREFERRED_SIZE)
+                .addComponent(send, GroupLayout.PREFERRED_SIZE, Constants.SENDBUTTON_WIDTH, GroupLayout.PREFERRED_SIZE)
                 .addGap(Constants.GAP_WIDTH, Constants.GAP_WIDTH, Constants.GAP_WIDTH))    
         );
         
