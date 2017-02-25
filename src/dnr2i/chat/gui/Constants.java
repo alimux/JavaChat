@@ -24,5 +24,8 @@ public class Constants {
     //text information
     public final static String JFRAMETITLE = "Java chat";
     public static final String BUTTON_LABEL = "Envoyer";
+    
+    //path
+    public final static String RESOURCES_PATH = "build/classes/dnr2i/chat/resources/";
 
 }
