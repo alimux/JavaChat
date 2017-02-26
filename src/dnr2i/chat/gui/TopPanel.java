@@ -16,6 +16,7 @@ public class TopPanel extends JPanel implements ListenerModel {
     private JTextArea publicArea;
     private JList usersList;
     private ChatManager chatManager;
+    private final DefaultListModel model;
 
     /**
      * constructor, call initPanel to initialize panel
@@ -26,6 +27,7 @@ public class TopPanel extends JPanel implements ListenerModel {
         initPanel();
         this.chatManager = cm;
         chatManager.addModelListener(this);
+        model = new DefaultListModel();
         
     }
 
@@ -67,15 +69,27 @@ public class TopPanel extends JPanel implements ListenerModel {
         System.out.println("update !");
         if (chatManager.getJustConnected()) { 
                 System.out.println(chatManager.getCurrentUser().getUserName()+" vient de se connecter au Panel TOP");
-                publicArea.setText("["+chatManager.getCurrentUser().getUserName()+"] vient de se connecter au chat...\n");
+                publicArea.setText("[ "+chatManager.getCurrentUser().getUserName()+" ] vient de se connecter au chat...\n");
+                
 
         }
         
         if(chatManager.getMessage()!=null){
             System.out.println("message non null");
             if(chatManager.getMessage().getMessageOutComing()!=null){
-                publicArea.append(chatManager.getMessage().getMessageOutComing()+"\n");
+                publicArea.append("[ "+chatManager.getCurrentUser().getUserName()+" ] "+chatManager.getMessage().getMessageOutComing()+"\n");
             }
+        }
+        if(!chatManager.getUserList().isEmpty()&& chatManager.isListUpdated()){
+            for(int i=0;i<chatManager.getUserList().size();i++){
+                 
+                model.addElement(chatManager.getUserList().get(i).getUserName());
+                
+            }
+           
+            usersList.setModel(model);
+            chatManager.setListUpdated(false);
+            
         }
     }
 

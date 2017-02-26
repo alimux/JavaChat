@@ -81,6 +81,7 @@ public class DownPanel extends JPanel implements ActionListener, ListenerModel{
             System.out.println("message entré dans la zone de texte : "+messageOutComing);
             input.setText("");
             
+            
         
         }
         

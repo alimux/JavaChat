@@ -29,6 +29,7 @@ public class ChatManager extends ListenableModel implements Runnable {
     private Message message;
     private Thread t1;
     private boolean suspended = true;
+    private boolean listUpdated = true;
     
     /**
      * constructor
@@ -47,6 +48,7 @@ public class ChatManager extends ListenableModel implements Runnable {
     }
     public ChatManager (){
         this.message = new Message();
+        userList = new ArrayList<>();
     }
     /**
      * send message method
@@ -61,6 +63,7 @@ public class ChatManager extends ListenableModel implements Runnable {
         output.println(outComingMessage);
         output.flush();
         */
+       
        fireChanged();
     }
     /**
@@ -101,8 +104,11 @@ public class ChatManager extends ListenableModel implements Runnable {
             
             justConnected=true;
             currentUser = new User(loginName, x, y);
+            addCurrentUser();
             fireChanged();
+            
             justConnected=false;
+            
             
             //send login to server
             /*output.println("LOGIN");
@@ -152,6 +158,7 @@ public class ChatManager extends ListenableModel implements Runnable {
 
     public User getCurrentUser() {
         return currentUser;
+        
     }
 
    
@@ -186,6 +193,25 @@ public class ChatManager extends ListenableModel implements Runnable {
     public Message getMessage() {
         return message;
     }
+    public void addCurrentUser(){
+        userList.add(this.currentUser);
+        
+    }
+    public ArrayList<User> getUserList() {
+        return userList;
+    }
+
+    public boolean isListUpdated() {
+        return listUpdated;
+    }
+
+    public void setListUpdated(boolean listUpdated) {
+        this.listUpdated = listUpdated;
+    }
+    
+    
+    
+    
 
 
 }
