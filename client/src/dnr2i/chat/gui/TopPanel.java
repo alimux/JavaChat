@@ -75,9 +75,14 @@ public class TopPanel extends JPanel implements ListenerModel {
         }
         
         if(chatManager.getMessage()!=null){
-            System.out.println("message non null");
+            //System.out.println("message non null");
             if(chatManager.getMessage().getMessageOutComing()!=null){
+                System.out.println("message sortant !");
                 publicArea.append("[ "+chatManager.getCurrentUser().getUserName()+" ] "+chatManager.getMessage().getMessageOutComing()+"\n");
+            }
+            if(chatManager.getMessage().getInComingMessage()!=null){
+                System.out.println("message entrant !");
+                publicArea.append("[ "+chatManager.getSendedMessageUser().getUserName()+" ] "+chatManager.getMessage().getInComingMessage()+"\n");
             }
         }
         if(!chatManager.getUserList().isEmpty()&& chatManager.isListUpdated()){
@@ -91,6 +96,8 @@ public class TopPanel extends JPanel implements ListenerModel {
             chatManager.setListUpdated(false);
             
         }
+        
+        
     }
 
 }

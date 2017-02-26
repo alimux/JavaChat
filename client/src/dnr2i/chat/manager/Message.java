@@ -1,7 +1,9 @@
 
 package dnr2i.chat.manager;
 
+import dnr2i.chat.user.User;
 import dnr2i.util.event.ListenableModel;
+import java.util.ArrayList;
 
 /**
  * Class which defines Message
@@ -11,6 +13,12 @@ public class Message extends ListenableModel{
     
     private String outComingMessage;
     private String inComingMessage;
+    private User user;
+    private ArrayList<Message> messages;
+    
+    public Message(){
+        messages = new ArrayList<>();
+    }
 
     public String getMessageOutComing() {
         return outComingMessage;
@@ -18,19 +26,23 @@ public class Message extends ListenableModel{
 
     public void setMessageOutComing(String message) {
         this.outComingMessage = message;
-        System.out.println("Classe Message OC: "+message);
+        //System.out.println("Classe Message OC: "+message);
         fireChanged();
     }
 
-    public String getInComingMessage() {
-        
+    public String getInComingMessage() {       
         return inComingMessage;      
     }
 
     public void setInComingMessage(String inComingMessage) {
         this.inComingMessage = inComingMessage;
-        System.out.println("Classe Message IC: "+inComingMessage);
+        //System.out.println("Classe Message IC: "+inComingMessage);
         fireChanged();
+    }
+    
+    public ArrayList<Message> setMessage(Message message){
+        messages.add(message);
+        return messages;
     }
     
     
