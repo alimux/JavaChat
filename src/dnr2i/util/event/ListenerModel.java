@@ -7,10 +7,10 @@ package dnr2i.util.event;
 
 /**
  *
- * @author user
+ * @author Alexandre DUCREUX 2016
  */
-public interface ModelListener {
+public interface ListenerModel {
     
-    public void modelChanged(Object source);
-    
+    void modelChanged(Object source);
+
 }

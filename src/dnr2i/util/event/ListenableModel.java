@@ -7,27 +7,29 @@ import java.util.ArrayList;
  *
  * @Alex Ducreux
  */
-public abstract class ModelListenable {
+public abstract class ListenableModel implements IListenableModel{
     
-    private ArrayList<ModelListener> listeners;
+    private final ArrayList<ListenerModel> listeners;
     
-    public ModelListenable()
+    public ListenableModel()
     {
         listeners = new ArrayList<>();
     }
     
-    public void addModelListener(ModelListener l)
+    @Override
+    public void addModelListener(ListenerModel l)
     {
        listeners.add(l);
        l.modelChanged(this);
     }
-    public void removeModelListener(ModelListener l)
+    @Override
+    public void removeModelListener(ListenerModel l)
     {
         listeners.remove(l);
     }
     protected void fireChanged()
     {
-        for(ModelListener l:listeners)
+        for(ListenerModel l:listeners)
         {
             l.modelChanged(this);
         }

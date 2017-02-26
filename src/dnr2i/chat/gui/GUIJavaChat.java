@@ -1,48 +1,50 @@
 package dnr2i.chat.gui;
 
-import dnr2i.chat.gui.message.Messages;
+import dnr2i.chat.manager.ChatManager;
 import dnr2i.chat.gui.socket.Connection;
+import dnr2i.chat.manager.Message;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
 import java.net.Socket;
 import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
 import javax.swing.border.Border;
+import dnr2i.util.event.ListenerModel;
 
-
-public class GUIJavaChat extends JFrame implements Runnable{
+public class GUIJavaChat extends JFrame {
 
     private final TopPanel topPanel;
     private final DownPanel downPanel;
-    private String loginName;
     private URL imgURL;
     private ImageIcon icon;
     private Connection connection;
     private Socket socket;
-    private Messages messages; 
-    
+    private final ChatManager chatManager;
+    private static final int STARTUP_POSITION = 0;
 
     /**
      * constructor call initFrame
      */
     public GUIJavaChat() {
-        
-        super(Constants.JFRAMETITLE);
-        topPanel = new TopPanel();
-        downPanel = new DownPanel();
-        initFrame();
 
+        super(Constants.JFRAMETITLE);
+        chatManager = new ChatManager();
+        System.out.println("test" + chatManager);
+        topPanel = new TopPanel(chatManager);
+        downPanel = new DownPanel(chatManager);
+        initFrame();
     }
 
     /**
      * setup the JFrame
      */
     private void initFrame() {
-        
+
         imgURL = getClass().getResource("chatIco.png");
         icon = new ImageIcon(imgURL);
-        
 
         //adding panels    
         Box mainPanel = Box.createVerticalBox();
@@ -72,8 +74,8 @@ public class GUIJavaChat extends JFrame implements Runnable{
     /**
      * InputDialog to input a login name
      */
-    private void login(){
-          
+    private void login() {
+
         //Input dialog of login
         String loginBox = (String) JOptionPane.showInputDialog(
                 this,
@@ -88,20 +90,13 @@ public class GUIJavaChat extends JFrame implements Runnable{
             System.out.println("Login null");
             System.exit(0);
         } else {
-            loginName = loginBox;
+            chatManager.login(loginBox, STARTUP_POSITION, STARTUP_POSITION);
             setVisible(true);
-            connection = new Connection();
-            socket = connection.getSocket();
+            // connection = new Connection();
+            // socket = connection.getSocket();
         }
-        System.out.println("Login : " + loginName);
+        System.out.println("Login : " + loginBox);
 
-    }
-
-    @Override
-    public void run() {
-        messages = new Messages(socket);
-        
-        
     }
 
 }

@@ -1,23 +1,32 @@
 package dnr2i.chat.gui;
 
-import java.awt.*;
+import dnr2i.chat.manager.ChatManager;
+import dnr2i.chat.manager.Message;
+import dnr2i.chat.user.User;
 import javax.swing.*;
+import dnr2i.util.event.ListenerModel;
 
 /**
  * Class which manage the top panel
  *
  * @author Alexandre DUCREUX 02/2017
  */
-public class TopPanel extends JPanel {
+public class TopPanel extends JPanel implements ListenerModel {
 
     private JTextArea publicArea;
     private JList usersList;
+    private ChatManager chatManager;
 
     /**
      * constructor, call initPanel to initialize panel
+     *
+     * @param cm
      */
-    public TopPanel() {
+    public TopPanel(ChatManager cm) {
         initPanel();
+        this.chatManager = cm;
+        chatManager.addModelListener(this);
+        
     }
 
     /**
@@ -50,6 +59,24 @@ public class TopPanel extends JPanel {
                                 .addComponent(usersList, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addContainerGap())
         );
+
+    }
+
+    @Override
+    public void modelChanged(Object source) {
+        System.out.println("update !");
+        if (chatManager.getJustConnected()) { 
+                System.out.println(chatManager.getCurrentUser().getUserName()+" vient de se connecter au Panel TOP");
+                publicArea.setText("["+chatManager.getCurrentUser().getUserName()+"] vient de se connecter au chat...\n");
+
+        }
+        
+        if(chatManager.getMessage()!=null){
+            System.out.println("message non null");
+            if(chatManager.getMessage().getMessageOutComing()!=null){
+                publicArea.append(chatManager.getMessage().getMessageOutComing()+"\n");
+            }
+        }
     }
 
 }

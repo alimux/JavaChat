@@ -6,25 +6,29 @@ package dnr2i.chat.gui;
  * Class wich defines the Down panel with textfield and send button
  */
 
-import dnr2i.util.event.ModelListener;
+import dnr2i.chat.manager.ChatManager;
+import dnr2i.chat.manager.Message;
+import dnr2i.util.event.ListenerModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.*;
 
 
-public class DownPanel extends JPanel implements ActionListener{
+public class DownPanel extends JPanel implements ActionListener, ListenerModel{
     
     private JButton send;
     private JTextField input;
-    private String messageOutcoming;
+    private String messageOutComing;
+    private ChatManager chatManager;
 
     /**
      * constructor call initPanel Method
+     * @param cm
      */
-    public DownPanel() {
-  
+    public DownPanel(ChatManager cm) {
         initPanel();
-        System.out.println("taille :"+GroupLayout.PREFERRED_SIZE);
+        this.chatManager = cm;
+        chatManager.addModelListener(this);
     }
     /**
      * method wich initializes the down panel
@@ -60,7 +64,7 @@ public class DownPanel extends JPanel implements ActionListener{
         );
         
         send.addActionListener(this);
-      
+        
     }
     /**
      * implements ActionListener, manage send click
@@ -71,21 +75,25 @@ public class DownPanel extends JPanel implements ActionListener{
         
         Object source = e.getSource();
         if(source==send){
-            messageOutcoming = input.getText();
-            System.out.println("message entré dans la zone de texte : "+messageOutcoming);
+            messageOutComing = input.getText().toString();
+            chatManager.getMessage().setMessageOutComing(messageOutComing);
+            chatManager.sendMessage(messageOutComing);
+            System.out.println("message entré dans la zone de texte : "+messageOutComing);
+            input.setText("");
             
+        
         }
         
     }
-    /**
-     * getter MessageOutComing
-     * @return String
-     */
-    public String getMessageOutcoming() {
-        return messageOutcoming;
+
+    @Override
+    public void modelChanged(Object source) {
+        
+        
+        System.out.println("update :"+source);
     }
-    
-    
+
+   
 
    
         
