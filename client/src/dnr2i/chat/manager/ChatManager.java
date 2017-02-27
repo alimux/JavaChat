@@ -24,7 +24,7 @@ public class ChatManager extends ListenableModel implements Runnable {
     private Connection connection;
     private Socket socket;
     private String outComingMessage;
-    private Boolean justConnected = false;
+    private Boolean justConnected = true;
     private ArrayList<User> userList;
     private User currentUser;
     private User sendedMessageUser;
@@ -104,7 +104,7 @@ public class ChatManager extends ListenableModel implements Runnable {
                 threadSuspended = true;
             }
         });
-        
+
     }
 
     /**
@@ -165,7 +165,7 @@ public class ChatManager extends ListenableModel implements Runnable {
             }
 
         });
-        
+
     }
 
     /**
@@ -176,9 +176,9 @@ public class ChatManager extends ListenableModel implements Runnable {
      * @param y
      */
     public void login(String loginName, int x, int y) {
-        if (!justConnected) {
+        if (justConnected) {
 
-            justConnected = true;
+            //justConnected = false;
             currentUser = new User(loginName, x, y);
             addCurrentUser();
 
@@ -222,7 +222,7 @@ public class ChatManager extends ListenableModel implements Runnable {
         output.println("SET_MSG");
         output.println(outComingMessage);
         output.flush();
-       
+
         fireChanged();
 
     }
@@ -380,14 +380,16 @@ public class ChatManager extends ListenableModel implements Runnable {
             output = new PrintWriter(socket.getOutputStream());
 
             System.out.println("Connexion au serveur réussie");
-           
+
             //launch thread
             while (true) {
                 Thread.sleep(2000);
-                initOutcomingMessageThread();
-                t3.start();
-                initInComingMessageThread();
-                t4.start();
+                if (!justConnected) {
+                    initOutcomingMessageThread();
+                    t3.start();
+                    initInComingMessageThread();
+                    t4.start();
+                }
 
             }
 

@@ -64,8 +64,8 @@ public class TopPanel extends JPanel implements ListenerModel {
 
     @Override
     public void modelChanged(Object source) {
-        //System.out.println("update !");
-        if (chatManager.getJustConnected()) { 
+        System.out.println("update ! "+chatManager.getCurrentUser());
+        if (chatManager.getJustConnected() && chatManager.getCurrentUser()!=null) { 
                 //System.out.println(chatManager.getCurrentUser().getUserName()+" vient de se connecter au Panel TOP");
                 publicArea.setText("[ "+chatManager.getCurrentUser().getUserName()+" ] vient de se connecter au chat...\n");
 
