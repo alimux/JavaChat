@@ -86,10 +86,8 @@ public class DownPanel extends JPanel implements ActionListener, ListenerModel{
     }
 
     @Override
-    public void modelChanged(Object source) {
-        
-        
-        System.out.println("update :"+source);
+    public void modelChanged(Object source) {    
+        //System.out.println("update :"+source);
     }
 
    

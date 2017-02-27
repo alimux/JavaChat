@@ -27,6 +27,6 @@ public class Constants {
     
     //connexion
     public final static String SERVER = "localhost";
-    public final static int PORT = 5555;
+    public final static int PORT = 7575;
 
 }

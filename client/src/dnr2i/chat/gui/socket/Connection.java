@@ -26,8 +26,8 @@ public class Connection {
      */
     private void initConnection() {
         try {
+            System.out.println("Connexion au serveur :"+Constants.SERVER+":"+Constants.PORT);
             socket = new Socket(Constants.SERVER, Constants.PORT);
-
         } catch (IOException ex) {
             ex.printStackTrace();
         }

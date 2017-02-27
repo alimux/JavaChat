@@ -1,6 +1,6 @@
 package dnr2i.chat.manager;
 
-import dnr2i.chat.gui.GUIJavaChat;
+import dnr2i.chat.gui.socket.Connection;
 import dnr2i.chat.user.User;
 import dnr2i.util.event.ListenableModel;
 import java.io.BufferedReader;
@@ -17,10 +17,11 @@ import java.util.logging.Logger;
  *
  * @author Alexandre DUCREUX 02/2017
  */
-public class ChatManager extends ListenableModel {
+public class ChatManager extends ListenableModel implements Runnable {
 
-    private PrintWriter output;
-    private BufferedReader input;
+    private PrintWriter output = null;
+    private BufferedReader input = null;
+    private Connection connection;
     private Socket socket;
     private String outComingMessage;
     private Boolean justConnected = false;
@@ -28,30 +29,133 @@ public class ChatManager extends ListenableModel {
     private User currentUser;
     private User sendedMessageUser;
     private Message message;
-    private Thread t1, t2;
+    private Thread t2, t3, t4;
     private volatile boolean threadSuspended;
     private boolean listUpdated = true;
 
     /**
      * constructor
      *
-     * @param socket
      */
-    public ChatManager(Socket socket) {
-        this.socket = socket;
+    public ChatManager() {
         userList = new ArrayList<>();
-        try {
-            this.input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            this.output = new PrintWriter(socket.getOutputStream());
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+        this.message = new Message();
+        System.out.println("Démarrage du thread 2");
+        t2 = new Thread(this);
+        t2.start();
 
     }
 
-    public ChatManager() {
-        this.message = new Message();
-        userList = new ArrayList<>();
+    public void initIncomingMessageThread() {
+
+        t3 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    System.out.println("Thread 3 lancé");
+                    if (threadSuspended) {
+                        synchronized (this) {
+                            while (threadSuspended) {
+                                try {
+                                    wait();
+                                } catch (InterruptedException ex) {
+                                    Logger.getLogger(ChatManager.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                            }
+                        }
+
+                    }
+
+                    sendMessage(outComingMessage);
+                    this.stop();
+                }
+            }
+
+            public synchronized void start() {
+                if (t3 == null) {
+                    t3 = new Thread(this);
+                    threadSuspended = false;
+                    System.out.println("thread 3 en démarre");
+                    this.start();
+                }
+            }
+
+            public synchronized void stop() {
+                System.out.println("thread 3 en pause");
+                threadSuspended = true;
+            }
+        });
+    }
+
+    public void initOutComingMessageThread() {
+        t4 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    System.out.println("Thread 4 lancé");
+                    System.out.println("Récupération des messages entrants");
+                    if (threadSuspended) {
+                        synchronized (this) {
+                            while (threadSuspended) {
+                                try {
+                                    wait();
+                                } catch (InterruptedException ex) {
+                                    Logger.getLogger(ChatManager.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                            }
+                        }
+
+                    }
+
+                    retrieveMessage(output);
+                    this.stop();
+                }
+            }
+
+            public synchronized void start() {
+                if (t4 == null) {
+                    t4 = new Thread(this);
+                    threadSuspended = false;
+                    System.out.println("thread 4 en démarre");
+                    this.start();
+                }
+            }
+
+            public synchronized void stop() {
+                System.out.println("thread 4 en pause");
+                threadSuspended = true;
+            }
+
+        });
+    }
+
+    /**
+     * Method which is called on login, send login and position to server
+     *
+     * @param loginName
+     * @param x
+     * @param y
+     */
+    public void login(String loginName, int x, int y) {
+        if (!justConnected) {
+            
+
+            justConnected = true;
+            currentUser = new User(loginName, x, y);
+            addCurrentUser();
+
+            //send login to server
+            if (output != null) {
+                output.println("LOGIN");
+                output.println(loginName);
+                output.println(x);
+                output.println(y);
+                output.flush();
+                fireChanged();
+                justConnected = false;
+                System.out.println(loginName + " vient de se connecter");
+            }
+        }
     }
 
     /**
@@ -63,13 +167,11 @@ public class ChatManager extends ListenableModel {
         System.out.println("Chat manager -> Envoi du message : " + message);
         outComingMessage = ocMessage;
         message.setMessageOutComing(outComingMessage);
-        
-        /* output.println("SET_MSG");
+        output.println("SET_MSG");
         output.println(outComingMessage);
         output.flush();
-         */
         fireChanged();
-        
+
     }
 
     /**
@@ -98,113 +200,6 @@ public class ChatManager extends ListenableModel {
             Logger.getLogger(ChatManager.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-    }
-
-    /**
-     * Method which is called on login, send login and position to server
-     *
-     * @param loginName
-     * @param x
-     * @param y
-     */
-    public void login(String loginName, int x, int y) {
-        if (!justConnected) {
-            System.out.println(loginName + " vient de se connecter");
-            
-            //starting thread    
-            t1 = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    while (true) { 
-                            System.out.println("Thread 1 lancé");
-                            if(threadSuspended) {
-                                synchronized (this) {
-                                    while(threadSuspended){
-                                        try {
-                                            wait();
-                                        } catch (InterruptedException ex) {
-                                            Logger.getLogger(ChatManager.class.getName()).log(Level.SEVERE, null, ex);
-                                        }
-                                    }
-                                }
-                            
-                            }
-                        
-                        sendMessage(outComingMessage);
-                        this.stop();
-                    }
-                }
-                public synchronized void start(){
-                    if(t1==null){
-                        t1=new Thread(this);
-                        threadSuspended = false;
-                        System.out.println("thread 1 en démarre");
-                        this.start();
-                    }
-                }
-                public synchronized void stop(){
-                    System.out.println("thread 1 en pause");
-                    threadSuspended=true;
-                }
-            });
-
-            t1.start();
-            
-            t2 = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    while (true) { 
-                            System.out.println("Thread 2 lancé");
-                            System.out.println("Récupération des messages entrants");
-                            if(threadSuspended) {
-                                synchronized (this) {
-                                    while(threadSuspended){
-                                        try {
-                                            wait();
-                                        } catch (InterruptedException ex) {
-                                            Logger.getLogger(ChatManager.class.getName()).log(Level.SEVERE, null, ex);
-                                        }
-                                    }
-                                }
-                            
-                            }
-                        
-                        retrieveMessage(output);
-                        this.stop();
-                    }
-                }
-                public synchronized void start(){
-                    if(t2==null){
-                        t2=new Thread(this);
-                        threadSuspended = false;
-                        System.out.println("thread 1 en démarre");
-                        this.start();
-                    }
-                }
-                public synchronized void stop(){
-                    System.out.println("thread 2 en pause");
-                    threadSuspended=true;
-                }
-               
-            });
-            
-            t2.start();
-
-            justConnected = true;
-            currentUser = new User(loginName, x, y);
-            addCurrentUser();
-            fireChanged();
-
-            justConnected = false;
-
-            //send login to server
-            /*output.println("LOGIN");
-            output.println(loginName);
-            output.println(x);
-            output.println(y);
-            output.flush();
-             */
-        }
     }
 
     /**
@@ -254,7 +249,6 @@ public class ChatManager extends ListenableModel {
         return currentUser;
 
     }
-
 
     /**
      * getter message instance
@@ -310,30 +304,43 @@ public class ChatManager extends ListenableModel {
     }
 
     /**
-     * getter thread1
-     *
-     * @return
-     */
-    public Thread getT1() {
-        return t1;
-    }
-
-    /**
-     * getter thread2
-     *
-     * @return
-     */
-    public Thread getT2() {
-        return t2;
-    }
-    /**
      * return isThreadSuspended
-     * @return 
+     *
+     * @return
      */
     public boolean isThreadSuspended() {
         return threadSuspended;
     }
 
+    public void setInput(BufferedReader input) {
+        this.input = input;
+    }
 
+    public BufferedReader getInput() {
+        return input;
+    }
+
+    @Override
+    public void run() {
+        System.out.println("Connexion en cours...");
+        connection = new Connection();
+        socket = connection.getSocket();
+        try {
+            input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            output = new PrintWriter(socket.getOutputStream());
+
+            System.out.println("Connexion au serveur réussie");
+            Thread.sleep(2000);
+            //launch thread
+            initOutComingMessageThread();
+            initIncomingMessageThread();
+
+        } catch (IOException ex) {
+            Logger.getLogger(ChatManager.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(ChatManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
 
 }

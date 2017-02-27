@@ -1,18 +1,11 @@
 package dnr2i.chat.gui;
 
 import dnr2i.chat.manager.ChatManager;
-import dnr2i.chat.gui.socket.Connection;
-import dnr2i.chat.manager.Message;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.HeadlessException;
-import java.net.Socket;
 import java.net.URL;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.*;
 import javax.swing.border.Border;
-import dnr2i.util.event.ListenerModel;
 
 public class GUIJavaChat extends JFrame {
 
@@ -20,8 +13,6 @@ public class GUIJavaChat extends JFrame {
     private final DownPanel downPanel;
     private URL imgURL;
     private ImageIcon icon;
-    private Connection connection;
-    private Socket socket;
     private final ChatManager chatManager;
     private static final int STARTUP_POSITION = 0;
 
@@ -32,7 +23,6 @@ public class GUIJavaChat extends JFrame {
 
         super(Constants.JFRAMETITLE);
         chatManager = new ChatManager();
-        System.out.println("test" + chatManager);
         topPanel = new TopPanel(chatManager);
         downPanel = new DownPanel(chatManager);
         initFrame();
@@ -92,8 +82,6 @@ public class GUIJavaChat extends JFrame {
         } else {
             chatManager.login(loginBox, STARTUP_POSITION, STARTUP_POSITION);
             setVisible(true);
-            // connection = new Connection();
-            // socket = connection.getSocket();
         }
         System.out.println("Login : " + loginBox);
 
