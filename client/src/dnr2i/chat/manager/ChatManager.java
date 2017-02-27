@@ -146,10 +146,9 @@ public class ChatManager extends ListenableModel implements Runnable {
 
             //send login to server
             if (output != null) {
+            	String login = loginName + "," + x + "," + y;
                 output.println("LOGIN");
-                output.println(loginName);
-                output.println(x);
-                output.println(y);
+                output.println(login);
                 output.flush();
                 fireChanged();
                 justConnected = false;
