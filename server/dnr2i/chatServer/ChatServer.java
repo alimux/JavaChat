@@ -1,157 +1,126 @@
 package dnr2i.chatServer;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Set;
 
-public class ChatServer implements Runnable
+/** 
+ * Build a new instance of a multi-user chat server.
+ * @author plabadille, Alexandre DUCREUX
+ * @since February, 2017
+ */
+public class ChatServer 
 {
+
+	private HashMap<String, ChatServerClient> clients;
+	private int nbClients = 0;
 	
-	private HashMap<String, ChatServerThread> clients;
-	private ServerSocket server;
-	private Thread thread;
-	
-	public ChatServer(int port) 
-	{
-		try {
+	/**
+	 * Constructor of multi-user chat server using a port number.
+	 * @param port
+	 */
+	public ChatServer(int port)
+	{	
+		this.clients = new HashMap<String, ChatServerClient>();
+		ServerSocket serverSocket = null;
+		try { 
 			System.out.println("Trying to bind port " + port + ", please wait  ...");
-			this.server = new ServerSocket(port);
-			System.out.println("Server sucessfuly started: " + this.server);
-			this.start();
+			serverSocket = new ServerSocket(port);
+			System.out.println("Server sucessfuly started: " + serverSocket);
+			
+			Thread t = new Thread(new ChatServerConnection(serverSocket, this));
+			t.start();
 		} catch(IOException e) {
 			System.out.println("Can't bind port " + port + ": " + e.getMessage());
 		}
-		
-		this.clients = new HashMap<String, ChatServerThread>();
 	}
 	
-	@Override
-	public void run()
+	/**
+	 * Used to add a new client thread to the clients HashMap
+	 * @param clientThread
+	 * @throws IOException
+	 */
+	public synchronized void addClient(ChatServerClient clientThread) throws IOException
 	{
-		while(this.thread != null) {
-			try {
-				System.out.println("Waiting for client directive ..."); 
-	            this.manageGlobalClientDirective(this.server.accept());
-			} catch(IOException e) {
-				System.out.println("Server accept error: " + e); 
-				this.stop();
+		System.out.println("Adding new client: " + clientThread.getUsername() + " to client list"); 
+		this.clients.put(clientThread.getUsername(),clientThread); 
+		this.nbClients++;
+	}
+  
+	/**
+	 * Used to remove a client thread from the clients HashMap
+	 * @param username
+	 * @throws IOException
+	 */
+	public synchronized void removeClient(String username) throws IOException
+	{
+		System.out.println("Removing client: " + username + " from client list");
+		this.clients.remove(username);
+		this.nbClients--;
+		   
+	}
+	
+	/**
+	 * Used to send a message from an user to the others at proximity
+	 * @param username
+	 * @param message
+	 */
+	public synchronized void handleClientMessage(String username, String message)
+	{
+		//We use an iterator to send the message to other client
+		Set<Entry<String, ChatServerClient>> set = this.clients.entrySet();
+		Iterator<Entry<String, ChatServerClient>> i = set.iterator();
+		
+		String out = username + "<END/>" + message;
+		System.out.println("User connected: " + this.clients.size());
+		while(i.hasNext()) {
+			Entry<String, ChatServerClient> me = i.next();
+			if (me.getKey() != username) {
+				//TODO: check the location
+				me.getValue().send(out);
 			}
 		}
 	}
 	
-	public void start()  
-	{ 
-      if (this.thread == null) {  
-    	 this.thread = new Thread(this); 
-         this.thread.start();
-      }
-   }
+	/**
+	 * Use to get the prepared response for sending to the client the usersList
+	 * @return response
+	 */
+	public synchronized String getUsersList()
+	{
+		System.out.println("Generating usersList...");
+		Set<Entry<String, ChatServerClient>> set = this.clients.entrySet();
+		Iterator<Entry<String, ChatServerClient>> i = set.iterator();
+		String response = "";
+   
+		while(i.hasNext()) {
+			Entry<String, ChatServerClient> me = i.next();
+			response += me.getKey() + "," + me.getValue().getX() + "," + me.getValue().getY() + ";";
+		}
+		
+		return response;
+	}
 	
-   public void stop()   
-   { 
-      if (this.thread != null) {  
-    	 this.thread.interrupt(); 
-         this.thread = null;
-      }
-   }
-   
-   public synchronized void removeClient(String username)
-   {
-	   ChatServerThread toTerminate = this.clients.get(username);
-	   System.out.println("Removing client thread " + toTerminate.getUsername());
-	   this.clients.remove(username);
-	   
-	   try {
-		   toTerminate.close();
-	   } catch(IOException e) {
-		   System.out.println("Error closing thread: " + e);
-		   toTerminate.interrupt();
-	   }
-   }
-   
-   public synchronized void handleClientMessage(String username, String input)
-   {   
-	   // We use an iterator to send the message to other client
-	   Set<Entry<String, ChatServerThread>> set = this.clients.entrySet();
-	   Iterator<Entry<String, ChatServerThread>> i = set.iterator();
-	   String message = username + "<END/>" + input;
-	   
-	   while(i.hasNext()) {
-		   Entry<String, ChatServerThread> me = i.next();
-		   if (me.getKey() != username) {
-			   //TODO: check the location
-			   me.getValue().send(message);
-		   }
-	   }
-   }
-   
-   private void manageGlobalClientDirective(Socket socket) throws IOException
-   {
-	   BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-	   PrintWriter out = new PrintWriter(socket.getOutputStream());
-	   
-	   String clientDirective = in.readLine();
-	   System.out.println("New client directive received: " + clientDirective + ". Processing directive...");
-	   
-	   switch(clientDirective) {
-	   		case "LOGIN":
-	   			System.out.println("LOGIN directive received: processing...");
-				String directiveContent = in.readLine();
-				this.addClientThread(socket, directiveContent);
-				break;
-	   		case "GET_USERS_LIST":
-				System.out.println("GET_USERS_LIST directive received: processing...");
-				this.sendUsersList(socket, out);
-				break;
-			default:
-				System.out.println("Unknown directive received: " + clientDirective);
-	   }
-   }
-   
-   private void addClientThread(Socket socket, String directiveContent) throws IOException
-   {
-	   System.out.println("User information received: " + directiveContent);
-	   
-	   System.out.println("Client connexion processing....: " + socket);
-	   ChatServerThread newThread = new ChatServerThread(this, socket, directiveContent);
-	   
-	   //check if user doesn't already exist
-	   if(!this.clients.containsKey(newThread.getUsername())) {
-		   try {
-			   newThread.open();
-			   newThread.run();
-			   this.clients.put(newThread.getUsername(),newThread);
-		   } catch(IOException e) {
-			   System.out.println("Error opening thread: " + e);
-		   }
-	   } else {
-		   System.out.println("This username is already taken: ... avorting");
-	   }
-	   
-	     
-   }
-   
-   private void sendUsersList(Socket socket, PrintWriter out)
-   {
-	   Set<Entry<String, ChatServerThread>> set = this.clients.entrySet();
-	   Iterator<Entry<String, ChatServerThread>> i = set.iterator();
-	   String response = "";
-	   
-	   while(i.hasNext()) {
-		   Entry<String, ChatServerThread> me = i.next();
-		   response += me.getKey() + "," + me.getValue().getX() + "," + me.getValue().getY() + ";";
-	   }
-	   
-	   System.out.println("Sending userList: " + response);
-	   out.print(response);
-	   out.flush();
-   }
-
+	/**
+	 * Use to get the number of client connected
+	 * @return nbClients
+	 */
+	public int getNbClients()
+	{
+		return this.nbClients;
+	}
+  
+	/**
+	 * Check if a client username doesn't already exist
+	 * @param username
+	 * @return boolean
+	 */
+	public boolean userExist(String username)
+	{
+		return this.nbClients != 0 ? this.clients.containsKey(username) : false;
+	}
+	
 }
