@@ -21,7 +21,7 @@ import javax.swing.JPanel;
 
 /**
  * Panel of the circumscribed Area 
- * @author Alexandre DUCREUX 02/2017
+ * @author Alexandre DUCREUX & plbadille 02/2017
  */
 public class UsersPanel extends JPanel implements MouseListener, MouseMotionListener, ListenerModel, Runnable{
     
@@ -112,6 +112,8 @@ public class UsersPanel extends JPanel implements MouseListener, MouseMotionList
         previousYPosition = me.getY();
         currentXPosition+=dx;
         currentYposition+=dy;
+        chatManager.getCurrentUser().setxPosition(currentXPosition);
+        chatManager.getCurrentUser().setyPosition(currentYposition);
         
         
         

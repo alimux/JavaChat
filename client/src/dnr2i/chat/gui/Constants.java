@@ -3,7 +3,7 @@ package dnr2i.chat.gui;
 /**
  * public Constants class which groups all constants using by the app
  *
- * @author Alexandr DUCREUX 02/2017
+ * @author Alexandr DUCREUX & plbadille 02/2017
  */
 public class Constants {
 

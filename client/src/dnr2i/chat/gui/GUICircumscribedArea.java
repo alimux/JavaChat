@@ -11,7 +11,7 @@ import static javax.swing.JFrame.EXIT_ON_CLOSE;
 
 /**
  * JFrame of the circumscribed Area where we can move your own "avatar"
- * @author Alexandre DUCREUX 02/2017
+ * @author Alexandre DUCREUX & plbadille 02/2017
  */
 public class GUICircumscribedArea extends JFrame implements Runnable{
 

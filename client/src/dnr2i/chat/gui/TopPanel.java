@@ -7,7 +7,7 @@ import dnr2i.util.event.ListenerModel;
 /**
  * Class which manage the top panel
  *
- * @author Alexandre DUCREUX 02/2017
+ * @author Alexandre DUCREUX & plbadille 02/2017
  */
 public class TopPanel extends JPanel implements ListenerModel {
 

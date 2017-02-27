@@ -9,6 +9,11 @@ import java.net.URL;
 import javax.swing.*;
 import javax.swing.border.Border;
 
+/**
+ * JFrame, mainFrame
+ * @author Alexandre DUCREUX & plbadille 02/2017
+ */
+
 public class GUIJavaChat extends JFrame {
 
     private final TopPanel topPanel;

@@ -8,7 +8,7 @@ import dnr2i.chat.gui.Constants;
  * class which manages sockets, connection to the server You can setup SERVER &
  * PORT in constants file
  *
- * @author Alexandre DUCREUX 02/2017
+ * @author Alexandre DUCREUX & plbadille 02/2017
  */
 public class Connection {
 

@@ -2,7 +2,7 @@
 package dnr2i.chat.gui;
 
 /**
- * @author Alexandre DUCREUX 02/2017
+ * @author Alexandre DUCREUX & plbadille 02/2017
  * Class wich defines the Down panel with textfield and send button
  */
 
