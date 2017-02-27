@@ -82,7 +82,7 @@ public class TopPanel extends JPanel implements ListenerModel {
                 publicArea.append("[ "+chatManager.getSendedMessageUser().getUserName()+" ] "+chatManager.getMessage().getInComingMessage()+"\n");
             }
         }
-        if(!chatManager.getUserList().isEmpty()&& chatManager.isListUpdated()){
+        if(!chatManager.getUserList().isEmpty() && chatManager.isListUpdated()){
             for(int i=0;i<chatManager.getUserList().size();i++){
                  
                 model.addElement(chatManager.getUserList().get(i).getUserName());

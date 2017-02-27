@@ -40,11 +40,21 @@ public class ChatManager extends ListenableModel implements Runnable {
     public ChatManager() {
         userList = new ArrayList<>();
         this.message = new Message();
+        
         System.out.println("Démarrage du thread 2");
         t2 = new Thread(this);
         t2.start();
 
     }
+    public void test(){
+        User user1= new User("Pierre", 50, 100);
+        User user2 = new User("Jacquie", 80, 30);
+        User user3 = new User("Michel", 10, 15);
+        userList.add(user1);
+        userList.add(user2);
+        userList.add(user3);
+    }
+    
     /**
      * Thread which manages outcoming messages
      */
@@ -113,6 +123,7 @@ public class ChatManager extends ListenableModel implements Runnable {
 
                     retrieveMessage(output);
                     retrieveUsersList();
+                    fireChanged();
                     updateUserCoordinate();
                     //this.stop();
                 }
@@ -157,6 +168,7 @@ public class ChatManager extends ListenableModel implements Runnable {
                 output.println(x);
                 output.println(y);
                 output.flush();
+                test();
                 fireChanged();
                 justConnected = false;
                 System.out.println(loginName + " vient de se connecter");
@@ -242,6 +254,7 @@ public class ChatManager extends ListenableModel implements Runnable {
                 }
             }
             return userList;
+            
 
         } catch (IOException ex) {
             Logger.getLogger(ChatManager.class.getName()).log(Level.SEVERE, null, ex);
