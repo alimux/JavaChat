@@ -33,6 +33,7 @@ public class User extends ListenableModel{
     }
 
     public void setxPosition(int xPosition) {
+        //System.out.println("update user x:" + xPosition);
         this.xPosition = xPosition;
         fireChanged();
     }
@@ -42,6 +43,7 @@ public class User extends ListenableModel{
     }
 
     public void setyPosition(int yPosition) {
+        //System.out.println("update user y:" + yPosition);
         this.yPosition = yPosition;
         fireChanged();
     }

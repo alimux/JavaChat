@@ -40,21 +40,22 @@ public class ChatManager extends ListenableModel implements Runnable {
     public ChatManager() {
         userList = new ArrayList<>();
         this.message = new Message();
-        
+
         System.out.println("Démarrage du thread 2");
         t2 = new Thread(this);
         t2.start();
 
     }
-    public void test(){
-        User user1= new User("Pierre", 50, 100);
-        User user2 = new User("Jacquie", 80, 30);
-        User user3 = new User("Michel", 10, 15);
+
+    public void test() {
+        User user1 = new User("Pierre", 210, 100);
+        User user2 = new User("Jacquie", 120, 30);
+        User user3 = new User("Michel", 40, 85);
         userList.add(user1);
         userList.add(user2);
         userList.add(user3);
     }
-    
+
     /**
      * Thread which manages outcoming messages
      */
@@ -89,6 +90,12 @@ public class ChatManager extends ListenableModel implements Runnable {
                     threadSuspended = false;
                     System.out.println("thread 3 en démarre");
                     this.start();
+                } else {
+                    if (threadSuspended) {
+                        System.out.println("thread graphique en redémarre");
+                        threadSuspended = false;
+                        notify();
+                    }
                 }
             }
 
@@ -97,35 +104,43 @@ public class ChatManager extends ListenableModel implements Runnable {
                 threadSuspended = true;
             }
         });
+        
     }
+
     /**
-     * Thread which manages incoming messages, set coordinates, and retrieve userslist
+     * Thread which manages incoming messages, set coordinates, and retrieve
+     * userslist
      */
     public void initInComingMessageThread() {
         t4 = new Thread(new Runnable() {
             @Override
             public void run() {
                 while (true) {
-                    System.out.println("Thread 4 lancé");
-                    System.out.println("Récupération des messages entrants");
-                    if (threadSuspended) {
-                        synchronized (this) {
-                            while (threadSuspended) {
-                                try {
-                                    wait();
-                                } catch (InterruptedException ex) {
-                                    Logger.getLogger(ChatManager.class.getName()).log(Level.SEVERE, null, ex);
+                    try {
+                        System.out.println("Thread 4 lancé");
+                        System.out.println("Récupération des messages entrants");
+                        Thread.sleep(500);
+                        if (threadSuspended) {
+                            synchronized (this) {
+                                while (threadSuspended) {
+                                    try {
+                                        wait();
+                                    } catch (InterruptedException ex) {
+                                        Logger.getLogger(ChatManager.class.getName()).log(Level.SEVERE, null, ex);
+                                    }
                                 }
                             }
+
                         }
 
-                    }
+                        retrieveMessage(output);
+                        retrieveUsersList();
+                        updateUserCoordinate();
 
-                    retrieveMessage(output);
-                    retrieveUsersList();
-                    fireChanged();
-                    updateUserCoordinate();
-                    //this.stop();
+                        this.stop();
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(ChatManager.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
             }
 
@@ -135,6 +150,12 @@ public class ChatManager extends ListenableModel implements Runnable {
                     threadSuspended = false;
                     System.out.println("thread 4 en démarre");
                     this.start();
+                } else {
+                    if (threadSuspended) {
+                        System.out.println("thread graphique en redémarre");
+                        threadSuspended = false;
+                        notify();
+                    }
                 }
             }
 
@@ -144,6 +165,7 @@ public class ChatManager extends ListenableModel implements Runnable {
             }
 
         });
+        
     }
 
     /**
@@ -155,7 +177,6 @@ public class ChatManager extends ListenableModel implements Runnable {
      */
     public void login(String loginName, int x, int y) {
         if (!justConnected) {
-            
 
             justConnected = true;
             currentUser = new User(loginName, x, y);
@@ -163,7 +184,7 @@ public class ChatManager extends ListenableModel implements Runnable {
 
             //send login to server
             if (output != null) {
-            	String login = loginName + "," + x + "," + y;
+                String login = loginName + "," + x + "," + y;
                 output.println("LOGIN");
                 output.println(login);
                 output.flush();
@@ -174,17 +195,19 @@ public class ChatManager extends ListenableModel implements Runnable {
             }
         }
     }
+
     /**
      * method wich update the coordinates of the current user
      */
-    public void updateUserCoordinate(){
-        if(output!=null){
+    public void updateUserCoordinate() {
+        System.out.println("update coordonnées : x:" + currentUser.getxPosition() + " y:" + currentUser.getyPosition());
+        if (output != null) {
             output.println("SET_COORDINATE");
             output.println(currentUser.getxPosition());
             output.println(currentUser.getyPosition());
             output.flush();
         }
-        
+
     }
 
     /**
@@ -199,6 +222,7 @@ public class ChatManager extends ListenableModel implements Runnable {
         output.println("SET_MSG");
         output.println(outComingMessage);
         output.flush();
+       
         fireChanged();
 
     }
@@ -249,11 +273,12 @@ public class ChatManager extends ListenableModel implements Runnable {
             for (int i = 0; i < userSplit.length; i++) {
                 String[] user = userSplit[i].split(",");
                 for (int j = 0; j < user.length; j++) {
-                    userList.add(new User(user[0], Integer.valueOf(user[1]), Integer.valueOf(user[2])));
+                    if (user[0] != currentUser.getUserName()) {
+                        userList.add(new User(user[0], Integer.valueOf(user[1]), Integer.valueOf(user[2])));
+                    }
                 }
             }
             return userList;
-            
 
         } catch (IOException ex) {
             Logger.getLogger(ChatManager.class.getName()).log(Level.SEVERE, null, ex);
@@ -341,6 +366,7 @@ public class ChatManager extends ListenableModel implements Runnable {
     public boolean isThreadSuspended() {
         return threadSuspended;
     }
+
     /**
      * Thread implements
      */
@@ -354,10 +380,16 @@ public class ChatManager extends ListenableModel implements Runnable {
             output = new PrintWriter(socket.getOutputStream());
 
             System.out.println("Connexion au serveur réussie");
-            Thread.sleep(2000);
+           
             //launch thread
-            initOutcomingMessageThread();
-            initInComingMessageThread();
+            while (true) {
+                Thread.sleep(2000);
+                initOutcomingMessageThread();
+                t3.start();
+                initInComingMessageThread();
+                t4.start();
+
+            }
 
         } catch (IOException ex) {
             Logger.getLogger(ChatManager.class.getName()).log(Level.SEVERE, null, ex);

@@ -11,8 +11,6 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,6 +31,7 @@ public class UsersPanel extends JPanel implements MouseListener, MouseMotionList
     private int currentXPosition;
     private int currentYposition;
     private Thread t1;
+    private volatile boolean threadSuspended;
 
     public UsersPanel(ArrayList<User> userList, User currentUser, ChatManager chatManager) {
 
@@ -48,6 +47,7 @@ public class UsersPanel extends JPanel implements MouseListener, MouseMotionList
         this.previousYPosition = currentUser.getyPosition();
         this.currentXPosition = currentUser.getxPosition();
         this.currentYposition = currentUser.getyPosition();
+
     }
 
     public void init() {
@@ -68,19 +68,26 @@ public class UsersPanel extends JPanel implements MouseListener, MouseMotionList
         mainAvatar.setColor(darkBlue);
         mainAvatar.drawOval(currentXPosition - (Constants.avatarField / 2), currentYposition - (Constants.avatarField / 2), Constants.avatarField, Constants.avatarField);
         mainAvatar.fillOval(currentXPosition, currentYposition, Constants.avatar, Constants.avatar);
-        mainAvatar.dispose();
+        //mainAvatar.dispose();
 
         //draw other users
         Graphics2D avatar = (Graphics2D) g;
         Color darkRed = new Color(192, 41, 41);
+
         if (userList.size() > 0) {
-            for (int i=0;i<userList.size();i++) {
-                avatar.drawString(userList.get(i).getUserName(), (currentXPosition - (Constants.avatar)), (currentYposition - (Constants.avatar / 2)));
-                avatar.setColor(darkRed);
-                avatar.fillOval(userList.get(i).getxPosition(), userList.get(i).getyPosition(), Constants.avatar, Constants.avatar);
-                avatar.dispose();
+
+            for (int i = 0; i < userList.size(); i++) {
+                //System.out.println("user->"+userList.get(i).getUserName());
+                if (userList.get(i).getUserName() != currentUser.getUserName()) {
+                    mainAvatar.setColor(Color.darkGray);
+                    avatar.drawString(userList.get(i).getUserName(), (userList.get(i).getxPosition() - (Constants.avatar)), (userList.get(i).getyPosition() - (Constants.avatar / 2)));
+                    avatar.setColor(darkRed);
+                    avatar.fillOval(userList.get(i).getxPosition(), userList.get(i).getyPosition(), Constants.avatar, Constants.avatar);
+
+                }
             }
         }
+        avatar.dispose();
 
     }
 
@@ -91,7 +98,7 @@ public class UsersPanel extends JPanel implements MouseListener, MouseMotionList
 
     @Override
     public void mousePressed(MouseEvent me) {
-        System.out.println("Mouse Pressed x:" + me.getX() + " y:" + me.getY());
+        //System.out.println("Mouse Pressed x:" + me.getX() + " y:" + me.getY());
         previousXPostion = me.getX();
         previousYPosition = me.getY();
     }
@@ -113,18 +120,17 @@ public class UsersPanel extends JPanel implements MouseListener, MouseMotionList
 
     @Override
     public void mouseDragged(MouseEvent me) {
-        System.out.println("Mouse Dragged xM:" + currentXPosition + " yM:" + currentYposition
-                + "Mouse Dragged xA:" + previousXPostion + " yA:" + previousYPosition);
+
         int dx = me.getX() - previousXPostion;
         int dy = me.getY() - previousYPosition;
-        System.out.println("Mouse Dragged x:" + currentXPosition + " y:" + currentYposition);
+        //System.out.println("Mouse Dragged x:" + currentXPosition + " y:" + currentYposition);
         previousXPostion = me.getX();
         previousYPosition = me.getY();
         currentXPosition += dx;
         currentYposition += dy;
-        chatManager.getCurrentUser().setxPosition(currentXPosition);
-        chatManager.getCurrentUser().setyPosition(currentYposition);
-
+        if(threadSuspended){
+           this.start();
+        }
     }
 
     @Override
@@ -141,13 +147,51 @@ public class UsersPanel extends JPanel implements MouseListener, MouseMotionList
     public void run() {
         System.out.println("Lancement thread graphique");
         while (true) {
-            repaint();
+            //System.out.println("Mouse Dragged x:" + currentXPosition + " y:" + currentYposition);
+            
+            if (threadSuspended) {
+                synchronized (this) {
+                    while (threadSuspended) {
+                        try {
+                            wait();
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(ChatManager.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                }
+
+            }
             try {
                 Thread.sleep(10);
             } catch (InterruptedException ex) {
                 Logger.getLogger(UsersPanel.class.getName()).log(Level.SEVERE, null, ex);
             }
+            chatManager.getCurrentUser().setxPosition(currentXPosition);
+            chatManager.getCurrentUser().setyPosition(currentYposition);
+            repaint();
+            stop();
         }
+    }
+
+    public synchronized void start() {
+        if (t1 == null) {
+            t1 = new Thread(this);
+            threadSuspended = false;
+            System.out.println("thread graphique en démarre");
+            this.start();
+        }
+        else{
+            if(threadSuspended){
+                System.out.println("thread graphique en redémarre");
+                threadSuspended= false;
+                notify();
+            }
+        }
+    }
+
+    public synchronized void stop() {
+        System.out.println("thread graphique en pause");
+        threadSuspended = true;
     }
 
 }
