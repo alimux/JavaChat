@@ -7,7 +7,7 @@ import dnr2i.util.event.ListenerModel;
 /**
  * Class which manage the top panel
  *
- * @author Alexandre DUCREUX 02/2017
+ * @author Alexandre DUCREUX & plbadille 02/2017
  */
 public class TopPanel extends JPanel implements ListenerModel {
 
@@ -55,7 +55,7 @@ public class TopPanel extends JPanel implements ListenerModel {
                 .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                                .addComponent(publicArea, GroupLayout.DEFAULT_SIZE, Constants.PUBLICAREA_HEIGTH, Short.MAX_VALUE)
+                                .addComponent(publicArea, GroupLayout.DEFAULT_SIZE, Constants.PUBLICAREA_HEIGHT, Short.MAX_VALUE)
                                 .addComponent(usersList, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addContainerGap())
         );

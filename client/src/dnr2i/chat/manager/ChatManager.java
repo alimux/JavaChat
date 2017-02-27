@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 /**
  * Class which manages sending & retrieving message
  *
- * @author Alexandre DUCREUX 02/2017
+ * @author Alexandre DUCREUX & plbadille 02/2017
  */
 public class ChatManager extends ListenableModel implements Runnable {
 
@@ -45,8 +45,10 @@ public class ChatManager extends ListenableModel implements Runnable {
         t2.start();
 
     }
-
-    public void initIncomingMessageThread() {
+    /**
+     * Thread which manages outcoming messages
+     */
+    public void initOutcomingMessageThread() {
 
         t3 = new Thread(new Runnable() {
             @Override
@@ -86,8 +88,10 @@ public class ChatManager extends ListenableModel implements Runnable {
             }
         });
     }
-
-    public void initOutComingMessageThread() {
+    /**
+     * Thread which manages incoming messages, set coordinates, and retrieve userslist
+     */
+    public void initInComingMessageThread() {
         t4 = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -108,7 +112,9 @@ public class ChatManager extends ListenableModel implements Runnable {
                     }
 
                     retrieveMessage(output);
-                    this.stop();
+                    retrieveUsersList();
+                    updateUserCoordinate();
+                    //this.stop();
                 }
             }
 
@@ -155,6 +161,18 @@ public class ChatManager extends ListenableModel implements Runnable {
                 System.out.println(loginName + " vient de se connecter");
             }
         }
+    }
+    /**
+     * method wich update the coordinates of the current user
+     */
+    public void updateUserCoordinate(){
+        if(output!=null){
+            output.println("SET_COORDINATE");
+            output.println(currentUser.getxPosition());
+            output.println(currentUser.getyPosition());
+            output.flush();
+        }
+        
     }
 
     /**
@@ -310,15 +328,9 @@ public class ChatManager extends ListenableModel implements Runnable {
     public boolean isThreadSuspended() {
         return threadSuspended;
     }
-
-    public void setInput(BufferedReader input) {
-        this.input = input;
-    }
-
-    public BufferedReader getInput() {
-        return input;
-    }
-
+    /**
+     * Thread implements
+     */
     @Override
     public void run() {
         System.out.println("Connexion en cours...");
@@ -331,8 +343,8 @@ public class ChatManager extends ListenableModel implements Runnable {
             System.out.println("Connexion au serveur réussie");
             Thread.sleep(2000);
             //launch thread
-            initOutComingMessageThread();
-            initIncomingMessageThread();
+            initOutcomingMessageThread();
+            initInComingMessageThread();
 
         } catch (IOException ex) {
             Logger.getLogger(ChatManager.class.getName()).log(Level.SEVERE, null, ex);

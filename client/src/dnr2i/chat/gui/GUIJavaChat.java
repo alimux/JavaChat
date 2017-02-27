@@ -3,9 +3,16 @@ package dnr2i.chat.gui;
 import dnr2i.chat.manager.ChatManager;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.net.URL;
 import javax.swing.*;
 import javax.swing.border.Border;
+
+/**
+ * JFrame, mainFrame
+ * @author Alexandre DUCREUX & plbadille 02/2017
+ */
 
 public class GUIJavaChat extends JFrame {
 
@@ -14,7 +21,7 @@ public class GUIJavaChat extends JFrame {
     private URL imgURL;
     private ImageIcon icon;
     private final ChatManager chatManager;
-    private static final int STARTUP_POSITION = 0;
+    private static final int STARTUP_POSITION = 200;
 
     /**
      * constructor call initFrame
@@ -54,7 +61,7 @@ public class GUIJavaChat extends JFrame {
         this.setPreferredSize(new Dimension(Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT));
         this.setSize(Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT);
         this.setBounds(0, 0, Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT);
-        this.setLocationRelativeTo(null);
+        this.setLocation(computeWindowPosition().width,computeWindowPosition().height);
 
         //login
         login();
@@ -82,9 +89,23 @@ public class GUIJavaChat extends JFrame {
         } else {
             chatManager.login(loginBox, STARTUP_POSITION, STARTUP_POSITION);
             setVisible(true);
+            new GUICircumscribedArea(icon, chatManager);
         }
         System.out.println("Login : " + loginBox);
 
+    }
+    /**
+     * Method which compute the position on the main JFrame
+     * @return 
+     */
+    public Dimension computeWindowPosition(){
+        GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        int width = gd.getDisplayMode().getWidth();
+        int height = gd.getDisplayMode().getHeight();
+        int xPos = ((width - Constants.WINDOW_WIDTH )/6);
+        int yPos = ((height - Constants.WINDOW_HEIGHT )/2);
+        Dimension d = new Dimension(xPos, yPos);
+        return d;
     }
 
 }

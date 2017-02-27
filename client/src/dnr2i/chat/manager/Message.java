@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 /**
  * Class which defines Message
- * @author Alexandre DUCREUX 02/2017
+ * @author Alexandre DUCREUX & plbadille 02/2017
  */
 public class Message extends ListenableModel{
     

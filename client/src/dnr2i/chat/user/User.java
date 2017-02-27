@@ -1,11 +1,13 @@
 
 package dnr2i.chat.user;
 
+import dnr2i.util.event.ListenableModel;
+
 /**
  * Class which defines a TChatter
- * @author Alexandre DUCREUX 02/2017
+ * @author Alexandre DUCREUX & plbadille 02/2017
  */
-public class User {
+public class User extends ListenableModel{
     
     private String userName;
     private int xPosition;
@@ -23,6 +25,7 @@ public class User {
 
     public void setUserName(String userName) {
         this.userName = userName;
+        
     }
 
     public int getxPosition() {
@@ -31,6 +34,7 @@ public class User {
 
     public void setxPosition(int xPosition) {
         this.xPosition = xPosition;
+        fireChanged();
     }
 
     public int getyPosition() {
@@ -39,6 +43,7 @@ public class User {
 
     public void setyPosition(int yPosition) {
         this.yPosition = yPosition;
+        fireChanged();
     }
     
     
