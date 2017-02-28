@@ -54,6 +54,7 @@ public class UsersPanel extends JPanel implements MouseListener, MouseMotionList
         setBackground(Color.LIGHT_GRAY);
     }
 
+
     @Override
     public void paint(Graphics g) {
         //draw current user
@@ -75,7 +76,6 @@ public class UsersPanel extends JPanel implements MouseListener, MouseMotionList
         Color darkRed = new Color(192, 41, 41);
 
         if (userList.size() > 0) {
-
             for (int i = 0; i < userList.size(); i++) {
                 //System.out.println("user->"+userList.get(i).getUserName());
                 if (userList.get(i).getUserName() != currentUser.getUserName()) {
@@ -90,7 +90,9 @@ public class UsersPanel extends JPanel implements MouseListener, MouseMotionList
         avatar.dispose();
 
     }
-
+   
+    
+    //mouse Listeners implements
     @Override
     public void mouseClicked(MouseEvent me) {
 
@@ -142,7 +144,9 @@ public class UsersPanel extends JPanel implements MouseListener, MouseMotionList
     public void modelChanged(Object source) {
         repaint();
     }
-
+    /**
+     * Runnable implements
+     */
     @Override
     public void run() {
         System.out.println("Lancement thread graphique");
@@ -167,7 +171,7 @@ public class UsersPanel extends JPanel implements MouseListener, MouseMotionList
                 Logger.getLogger(UsersPanel.class.getName()).log(Level.SEVERE, null, ex);
             }
             chatManager.getCurrentUser().setxPosition(currentXPosition);
-            chatManager.getCurrentUser().setyPosition(currentYposition);
+            chatManager.getCurrentUser().setyPosition(currentYposition);   
             repaint();
             stop();
         }
