@@ -45,7 +45,23 @@ public class ChatServer
 	 */
 	public synchronized void addClient(ChatServerClient clientThread) throws IOException
 	{
-		System.out.println("Adding new client: " + clientThread.getUsername() + " to client list"); 
+		System.out.println("Adding new client: " + clientThread.getUsername() + " to client list");
+		
+		if (this.nbClients != 0) { 
+			Set<Entry<String, ChatServerClient>> set = this.clients.entrySet();
+			Iterator<Entry<String, ChatServerClient>> i = set.iterator();
+			
+			System.out.println("User connected: " + this.clients.size());
+			
+			//Notify others client:
+			while(i.hasNext()) {
+				Entry<String, ChatServerClient> me = i.next();
+				me.getValue().notifyNewUser(clientThread.getUsername() + "," + clientThread.getX() + "," + clientThread.getY());
+			}
+			//Send new client the users list:
+			clientThread.notifyUserList(this.getUsersList());
+		}
+		
 		this.clients.put(clientThread.getUsername(),clientThread); 
 		this.nbClients++;
 	}
@@ -58,6 +74,22 @@ public class ChatServer
 	public synchronized void removeClient(String username) throws IOException
 	{
 		System.out.println("Removing client: " + username + " from client list");
+		
+		if (this.nbClients > 1) {
+			Set<Entry<String, ChatServerClient>> set = this.clients.entrySet();
+			Iterator<Entry<String, ChatServerClient>> i = set.iterator();
+			
+			System.out.println("User connected: " + this.clients.size());
+			
+			//Notify others client:
+			while(i.hasNext()) {
+				Entry<String, ChatServerClient> me = i.next();
+				if (me.getKey() != username) {
+					me.getValue().notifyOldUser(username);
+				}
+			}
+		}
+		
 		this.clients.remove(username);
 		this.nbClients--;
 		   
@@ -70,6 +102,7 @@ public class ChatServer
 	 */
 	public synchronized void handleClientMessage(String username, String message)
 	{
+		System.out.println("handling message: " + message + " from: " + username);
 		//We use an iterator to send the message to other client
 		Set<Entry<String, ChatServerClient>> set = this.clients.entrySet();
 		Iterator<Entry<String, ChatServerClient>> i = set.iterator();
@@ -78,10 +111,23 @@ public class ChatServer
 		System.out.println("User connected: " + this.clients.size());
 		while(i.hasNext()) {
 			Entry<String, ChatServerClient> me = i.next();
-//			if (me.getKey() != username) {
+			if (me.getKey() != username) {
 				//TODO: check the location
 				me.getValue().send(out);
-		//	}
+			}
+		}
+	}
+	
+	public synchronized void handleNewCoordinate(String input)
+	{
+		Set<Entry<String, ChatServerClient>> set = this.clients.entrySet();
+		Iterator<Entry<String, ChatServerClient>> i = set.iterator();
+		
+		while(i.hasNext()) {
+			Entry<String, ChatServerClient> me = i.next();
+			if (me.getKey() != input.split(",")[0]) {
+				me.getValue().notifyNewCoordinate(input);
+			}
 		}
 	}
 	
@@ -89,7 +135,7 @@ public class ChatServer
 	 * Use to get the prepared response for sending to the client the usersList
 	 * @return response
 	 */
-	public synchronized String getUsersList()
+	private String getUsersList()
 	{
 		System.out.println("Generating usersList...");
 		Set<Entry<String, ChatServerClient>> set = this.clients.entrySet();

@@ -11,19 +11,22 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JPanel;
 
 /**
  * Panel of the circumscribed Area
- *
- * @author Alexandre DUCREUX & plbadille 02/2017
+ * @author Alexandre DUCREUX & plabadille 
+ * @date February, 2017
  */
 public class UsersPanel extends JPanel implements MouseListener, MouseMotionListener, ListenerModel, Runnable {
 
-    private ArrayList<User> userList;
+    private HashMap<String, User> userList;
     private User currentUser;
     private ChatManager chatManager;
     private int previousXPostion;
@@ -33,7 +36,7 @@ public class UsersPanel extends JPanel implements MouseListener, MouseMotionList
     private Thread t1;
     private volatile boolean threadSuspended;
 
-    public UsersPanel(ArrayList<User> userList, User currentUser, ChatManager chatManager) {
+    public UsersPanel(HashMap<String, User> userList, User currentUser, ChatManager chatManager) {
 
         init();
         t1 = new Thread(this);
@@ -76,16 +79,18 @@ public class UsersPanel extends JPanel implements MouseListener, MouseMotionList
         Color darkRed = new Color(192, 41, 41);
 
         if (userList.size() > 0) {
-            for (int i = 0; i < userList.size(); i++) {
-                //System.out.println("user->"+userList.get(i).getUserName());
-                if (userList.get(i).getUserName() != currentUser.getUserName()) {
-                    mainAvatar.setColor(Color.darkGray);
-                    avatar.drawString(userList.get(i).getUserName(), (userList.get(i).getxPosition() - (Constants.avatar)), (userList.get(i).getyPosition() - (Constants.avatar / 2)));
-                    avatar.setColor(darkRed);
-                    avatar.fillOval(userList.get(i).getxPosition(), userList.get(i).getyPosition(), Constants.avatar, Constants.avatar);
-
-                }
-            }
+        	Set<Entry<String, User>> set = this.userList.entrySet();
+    		Iterator<Entry<String, User>> i = set.iterator();
+    		
+    		while(i.hasNext()) {
+    			Entry<String, User> me = i.next();
+    			if (me.getKey() != currentUser.getUserName()) {
+                     mainAvatar.setColor(Color.darkGray);
+                     avatar.drawString(me.getKey(), (me.getValue().getxPosition() - (Constants.avatar)), (me.getValue().getyPosition() - (Constants.avatar / 2)));
+                     avatar.setColor(darkRed);
+                     avatar.fillOval(me.getValue().getxPosition(), me.getValue().getyPosition(), Constants.avatar, Constants.avatar);
+                 }
+    		}
         }
         avatar.dispose();
 

@@ -116,13 +116,6 @@ public class ChatServerClient implements Runnable
 						System.out.println("Directive SET_MSG received, handling the request...");
 						this.server.handleClientMessage(this.username, input);
 						break;
-					case "GET_USERS_LIST":
-						System.out.println("Directive GET_USERS_LIST received, handling the request...");
-						this.streamOut.println("SET_USERS_LIST");
-						this.streamOut.println(this.server.getUsersList());
-						this.streamOut.flush();
-						System.out.println("Response sent");
-						break;
 					case "GET_NB":
 						System.out.println("Directive GET_NB received, handling the request...");
 						this.streamOut.println("SET_NB");
@@ -134,6 +127,7 @@ public class ChatServerClient implements Runnable
 						System.out.println("Directive SET_COORDINATE received, handling the request...");
 						input = this.streamIn.readLine();
 						this.changeCoordinate(input);
+						this.server.handleNewCoordinate(input);
 						break;
 					case "LOGOUT":
 						System.out.println("Directive LOGOUT received, handling the request...");
@@ -154,11 +148,11 @@ public class ChatServerClient implements Runnable
 	 * Broadcast a message to the user associated with this thread
 	 * @param msg
 	 */
-	public void send(String msg)
+	public void send(String output)
 	{
-		System.out.println("SEND to " + this.username + " message: " + msg);
+		System.out.println("SEND to " + this.username + " message: " + output);
 		this.streamOut.println("GET_MSG");
-		this.streamOut.println(msg);
+		this.streamOut.println(output);
 		this.streamOut.flush();
 	}
 	
@@ -177,6 +171,38 @@ public class ChatServerClient implements Runnable
 			System.out.println("The shape of SET_COORDINATE directive received is not correct.");
 		}
 	}
+	
+    public void notifyNewUser(String output)
+    {
+    	System.out.println("Server notify client: "+ this.getUsername() + " join to connected users: " + output);
+    	this.streamOut.println("SET_NEW_USER");
+		this.streamOut.println(output);
+		this.streamOut.flush();
+    }
+    
+    public void notifyUserList(String output)
+    {
+    	System.out.println("Server notify new client of connected user: " + output);
+    	this.streamOut.println("SET_USERS_LIST");
+		this.streamOut.println(output);
+		this.streamOut.flush();
+    }
+    
+    public void notifyOldUser(String output)
+    {
+    	System.out.println("Server notify client quit to connected users: " + output);
+    	this.streamOut.println("SET_OLD_USER");
+		this.streamOut.println(output);
+		this.streamOut.flush();
+    }
+    
+    public void notifyNewCoordinate(String output)
+    {
+    	System.out.println("Server notify client move to connected users: " + output);
+    	this.streamOut.println("SET_NEW_COORDINATE");
+		this.streamOut.println(output);
+		this.streamOut.flush();
+    }
 
 	public String getUsername() {
 		return this.username;

@@ -1,13 +1,19 @@
 package dnr2i.chat.gui;
 
 import dnr2i.chat.manager.ChatManager;
+import dnr2i.chat.user.User;
+
+import java.util.Iterator;
+import java.util.Set;
+import java.util.Map.Entry;
+
 import javax.swing.*;
 import dnr2i.util.event.ListenerModel;
 
 /**
  * Class which manage the top panel
- *
- * @author Alexandre DUCREUX & plbadille 02/2017
+ * @author Alexandre DUCREUX & plabadille
+ * @date February, 2017
  */
 public class TopPanel extends JPanel implements ListenerModel {
 
@@ -65,7 +71,7 @@ public class TopPanel extends JPanel implements ListenerModel {
     @Override
     public void modelChanged(Object source) {
         System.out.println("update ! "+chatManager.getCurrentUser());
-        if (chatManager.getJustConnected() && chatManager.getCurrentUser()!=null) { 
+        if (chatManager.getCurrentUser()!=null) { 
                 //System.out.println(chatManager.getCurrentUser().getUserName()+" vient de se connecter au Panel TOP");
                 publicArea.setText("[ "+chatManager.getCurrentUser().getUserName()+" ] vient de se connecter au chat...\n");
 
@@ -83,11 +89,13 @@ public class TopPanel extends JPanel implements ListenerModel {
             }
         }
         if(!chatManager.getUserList().isEmpty() && chatManager.isListUpdated()){
-            for(int i=0;i<chatManager.getUserList().size();i++){
-                 
-                model.addElement(chatManager.getUserList().get(i).getUserName());
-                
-            }
+        	Set<Entry<String, User>> set = this.chatManager.getUserList().entrySet();
+    		Iterator<Entry<String, User>> i = set.iterator();
+    		
+    		while(i.hasNext()) {
+    			Entry<String, User> me = i.next();
+    			model.addElement(me.getKey());
+    		}
            
             usersList.setModel(model);
             chatManager.setListUpdated(false);

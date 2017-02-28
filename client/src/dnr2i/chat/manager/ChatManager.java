@@ -8,16 +8,15 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.HashMap;
 
 /**
  * Class which manages sending & retrieving message
- *
- * @author Alexandre DUCREUX & plbadille 02/2017
+ * @author Alexandre DUCREUX & plabadille
+ * @since February, 2017
  */
-public class ChatManager extends ListenableModel {
+public class ChatManager extends ListenableModel 
+{
 
 	private Socket socket;
     private PrintWriter output;
@@ -25,27 +24,20 @@ public class ChatManager extends ListenableModel {
     public Thread t1;
     
     private Message message;
-    private ArrayList<User> userList;
-    private Boolean justConnected;
-//    private Connection connection;
-    
-    private String outComingMessage;
-    
-    
+    private HashMap<String, User> userList;
+  
     private User currentUser;
     private User sendedMessageUser;
-    private Thread t2, t3, t4;
-    private volatile boolean threadSuspended;
     private boolean listUpdated = true;
 
     /**
      * constructor
      *
      */
-    public ChatManager() {
-        this.userList = new ArrayList<User>();
+    public ChatManager() 
+    {
+        this.userList = new HashMap<String, User>();
         this.message = new Message();
-        this.justConnected = true;
         
         System.out.println("Connection in progress...");
         Connection connection = new Connection();
@@ -64,8 +56,6 @@ public class ChatManager extends ListenableModel {
         this.t1 = new Thread(new ClientIncomingDirective(this, this.input));
         this.t1.start();
         
-//        t2 = new Thread(this);
-//        t2.start();
     }
     
     /**
@@ -75,28 +65,27 @@ public class ChatManager extends ListenableModel {
      * @param x
      * @param y
      */
-    public void login(String loginName, int x, int y) {
-        if (justConnected) { //TODO check if we can remove it.
-            this.currentUser = new User(loginName, x, y);
-            this.userList.add(this.currentUser);
+    public void login(String loginName, int x, int y) 
+    {
+        this.currentUser = new User(loginName, x, y);
+        this.userList.put(loginName, this.currentUser);
 
-            //send login to server
-            System.out.println("Sending LOGIN directive to the server...");
-            String login = loginName + "," + x + "," + y;
-            output.println("LOGIN");
-            output.println(login);
-            output.flush();
-            System.out.println("LOGIN directive send to the server: " + login);
-//                test();
-            fireChanged();
-            justConnected = false;           
-        }
+        //send login to server
+        System.out.println("Sending LOGIN directive to the server...");
+        String login = loginName + "," + x + "," + y;
+        output.println("LOGIN");
+        output.println(login);
+        output.flush();
+        System.out.println("LOGIN directive send to the server: " + login);
+        
+        fireChanged();
     }
     
     /**
      * method wich update the coordinates of the current user
      */
-    public void updateUserCoordinate() {
+    public void sendCoordinate() 
+    {
     	System.out.println("Sending SET_COORDINATE directive to the server...");
     	String coordinate = currentUser.getxPosition() + "," + currentUser.getyPosition();
         output.println("SET_COORDINATE");
@@ -110,13 +99,16 @@ public class ChatManager extends ListenableModel {
      *
      * @param ocMessage
      */
-    public void sendMessage(String ocMessage) { //TODO check if ocMessage have the attended shape
+    public void sendMessage(String ocMessage)
+    { //TODO check if ocMessage have the attended shape
+    	//GET_MSG
     	System.out.println("Sending SET_MSG directive to the server...");
         message.setMessageOutComing(ocMessage);
         output.println("SET_MSG");
         output.println(ocMessage);
         output.flush();
         System.out.println("New message sent to the server : " + ocMessage);
+        
         fireChanged();
     }
 
@@ -125,172 +117,64 @@ public class ChatManager extends ListenableModel {
      *
      * @param out
      */
-    public void retrieveMessage(String incomingMessage) {
-
+    public void retrieveMessage(String incomingMessage) 
+    {
         System.out.println("Handling the server response for directive GET_MSG: " + incomingMessage);
 
         String[] splitMessage = incomingMessage.split("<END/>");
-        //retrieve the user who sended message
-        for (int i = 0; i < this.userList.size(); i++) { //TODO check if sendedMessageUser is usefull
-            if (this.userList.get(i).getUserName().equals(splitMessage[0])) {
-                this.sendedMessageUser = this.userList.get(i);
-            }
-        }
+        this.sendedMessageUser = this.userList.get(splitMessage[0]); //TODO check if sendedMessageUser is usefull
         this.message.setInComingMessage(splitMessage[1]);
+        
         fireChanged();
+    }
+    
+    public void addUserToList(String response)
+    {
+    	//called by SET_NEW_USER directive
+    	String[] userSplit = response.split(",");
+    	if(!this.userExist(userSplit[0])) {
+    		User newUser = new User(userSplit[0], Integer.parseInt(userSplit[1]), Integer.parseInt(userSplit[2]));
+        	this.userList.put(userSplit[0], newUser);
+    	}
+    }
+    
+    public void deleteUserFromList(String oldUser)
+    {
+    	//called by SET_OLD_USER directive
+    	if(this.userExist(oldUser)) {
+    		this.userList.remove(oldUser);
+    	}
+    	//TODO disconect user
+    }
+    
+    public boolean userExist(String username)
+    {
+    	return this.userList.containsKey(username);
     }
 
     /**
      * Method which retrieves the list of the Tchatters
-     *
+     * Just called after the user connection
      * @return ArrayList
      */
-    public void retrieveUsersList(String incomingUserList) { //TODO see for sending the userlist to front everytime there's a change
-    	//TODO remake...
-
-//        //parsing list
-//        String[] userSplit = incomingUserList.split(";");
-//        for (int i = 0; i < userSplit.length; i++) {
-//            String[] user = userSplit[i].split(",");
-//            for (int j = 0; j < user.length; j++) {
-//                if (user[0] != currentUser.getUserName()) {
-//                    userList.add(new User(user[0], Integer.valueOf(user[1]), Integer.valueOf(user[2])));
-//                }
-//            }
-//        }
-
+    public void retrieveUsersList(String userList)
+    {
+    	//called by SET_USERS_LIST directive
+        String[] userSplit = userList.split(";");
+        for (int i = 0; i < userSplit.length; i++) {
+        	this.addUserToList(userSplit[i]);
+        }
     }
-
-//    public void test() {
-//        User user1 = new User("Pierre", 210, 100);
-//        User user2 = new User("Jacquie", 120, 30);
-//        User user3 = new User("Michel", 40, 85);
-//        userList.add(user1);
-//        userList.add(user2);
-//        userList.add(user3);
-//    }
-
-//    /**
-//     * Thread which manages outcoming messages
-//     */
-//    public void initOutcomingMessageThread() {
-//
-//        t3 = new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                while (true) {
-//                    System.out.println("Thread 3 lancé");
-//                    if (threadSuspended) {
-//                        synchronized (this) {
-//                            while (threadSuspended) {
-//                                try {
-//                                    wait();
-//                                } catch (InterruptedException ex) {
-//                                    Logger.getLogger(ChatManager.class.getName()).log(Level.SEVERE, null, ex);
-//                                }
-//                            }
-//                        }
-//
-//                    }
-//
-//                    sendMessage(outComingMessage);
-//                    this.stop();
-//                }
-//            }
-//
-//            public synchronized void start() {
-//                if (t3 == null) {
-//                    t3 = new Thread(this);
-//                    threadSuspended = false;
-//                    System.out.println("thread 3 en démarre");
-//                    this.start();
-//                } else {
-//                    if (threadSuspended) {
-//                        System.out.println("thread graphique en redémarre");
-//                        threadSuspended = false;
-//                        notify();
-//                    }
-//                }
-//            }
-//
-//            public synchronized void stop() {
-//                System.out.println("thread 3 en pause");
-//                threadSuspended = true;
-//            }
-//        });
-//
-//    }
-//
-//    /**
-//     * Thread which manages incoming messages, set coordinates, and retrieve
-//     * userslist
-//     */
-//    public void initInComingMessageThread() {
-//        t4 = new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                while (true) {
-//                    try {
-//                        System.out.println("Thread 4 lancé");
-//                        System.out.println("Récupération des messages entrants");
-//                        Thread.sleep(500);
-//                        if (threadSuspended) {
-//                            synchronized (this) {
-//                                while (threadSuspended) {
-//                                    try {
-//                                        wait();
-//                                    } catch (InterruptedException ex) {
-//                                        Logger.getLogger(ChatManager.class.getName()).log(Level.SEVERE, null, ex);
-//                                    }
-//                                }
-//                            }
-//
-//                        }
-//
-//                        retrieveMessage(output);
-//                        retrieveUsersList();
-//                        updateUserCoordinate();
-//
-//                        this.stop();
-//                    } catch (InterruptedException ex) {
-//                        Logger.getLogger(ChatManager.class.getName()).log(Level.SEVERE, null, ex);
-//                    }
-//                }
-//            }
-//
-//            public synchronized void start() {
-//                if (t4 == null) {
-//                    t4 = new Thread(this);
-//                    threadSuspended = false;
-//                    System.out.println("thread 4 en démarre");
-//                    this.start();
-//                } else {
-//                    if (threadSuspended) {
-//                        System.out.println("thread graphique en redémarre");
-//                        threadSuspended = false;
-//                        notify();
-//                    }
-//                }
-//            }
-//
-//            public synchronized void stop() {
-//                System.out.println("thread 4 en pause");
-//                threadSuspended = true;
-//            }
-//
-//        });
-//
-//    }
-
-    /**
-     * getterJustConnected
-     *
-     * @return
-     */
-    public Boolean getJustConnected() {
-        return justConnected;
+    
+    public void changeUserCoordinate(String response)
+    {
+    	//called by SET_NEW_COORDINATE directive
+    	String[] responseSplit = response.split(",");
+    	User user = this.userList.get(responseSplit[0]);
+    	user.setxPosition(Integer.parseInt(responseSplit[1]));
+    	user.setyPosition(Integer.parseInt(responseSplit[2]));
     }
-
+    
     /**
      * return the current user
      *
@@ -311,20 +195,12 @@ public class ChatManager extends ListenableModel {
     }
 
     /**
-     * add the current user in user list
-     */
-    public void addCurrentUser() {
-        userList.add(this.currentUser);
-
-    }
-
-    /**
      * getter user list
      *
      * @return
      */
-    public ArrayList<User> getUserList() {
-        return userList;
+    public HashMap<String, User> getUserList() {
+        return this.userList;
     }
 
     /**
@@ -353,48 +229,5 @@ public class ChatManager extends ListenableModel {
     public User getSendedMessageUser() {
         return sendedMessageUser;
     }
-
-    /**
-     * return isThreadSuspended
-     *
-     * @return
-     */
-    public boolean isThreadSuspended() {
-        return threadSuspended;
-    }
-
-//    /**
-//     * Thread implements
-//     */
-//    @Override
-//    public void run() {
-//        System.out.println("Connexion en cours...");
-//        connection = new Connection();
-//        socket = connection.getSocket();
-//        try {
-//            input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-//            output = new PrintWriter(socket.getOutputStream());
-//
-//            System.out.println("Connexion au serveur réussie");
-//
-//            //launch thread
-//            while (true) {
-//                Thread.sleep(2000);
-//                if (!justConnected) {
-//                    initOutcomingMessageThread();
-//                    t3.start();
-//                    initInComingMessageThread();
-//                    t4.start();
-//                }
-//
-//            }
-//
-//        } catch (IOException ex) {
-//            Logger.getLogger(ChatManager.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (InterruptedException ex) {
-//            Logger.getLogger(ChatManager.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//
-//    }
 
 }
