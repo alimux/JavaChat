@@ -157,6 +157,7 @@ public class ChatServerClient implements Runnable
 	public void send(String msg)
 	{
 		System.out.println("SEND to " + this.username + " message: " + msg);
+		this.streamOut.println("GET_MSG");
 		this.streamOut.println(msg);
 		this.streamOut.flush();
 	}

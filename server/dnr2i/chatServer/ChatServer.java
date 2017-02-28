@@ -78,10 +78,10 @@ public class ChatServer
 		System.out.println("User connected: " + this.clients.size());
 		while(i.hasNext()) {
 			Entry<String, ChatServerClient> me = i.next();
-			if (me.getKey() != username) {
+//			if (me.getKey() != username) {
 				//TODO: check the location
 				me.getValue().send(out);
-			}
+		//	}
 		}
 	}
 	
