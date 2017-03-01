@@ -11,7 +11,8 @@ import static javax.swing.JFrame.EXIT_ON_CLOSE;
 
 /**
  * JFrame of the circumscribed Area where we can move your own "avatar"
- * @author Alexandre DUCREUX & plbadille 02/2017
+ * @author Alexandre DUCREUX & plabadille 
+ * @since February, 2017
  */
 public class GUICircumscribedArea extends JFrame implements Runnable{
 
@@ -24,6 +25,7 @@ public class GUICircumscribedArea extends JFrame implements Runnable{
         this.chatManager = chatManager;
         init();
         UsersPanel up = new UsersPanel(chatManager.getUserList(), chatManager.getCurrentUser(), chatManager);
+        this.chatManager.setGraphicsController(up);
         //adding panels    
         Box mainPanel = Box.createVerticalBox();
         mainPanel.add(up);

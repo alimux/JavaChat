@@ -1,5 +1,6 @@
 package dnr2i.chat.manager;
 
+import dnr2i.chat.gui.UsersPanel;
 import dnr2i.chat.gui.socket.Connection;
 import dnr2i.chat.user.User;
 import dnr2i.util.event.ListenableModel;
@@ -29,6 +30,7 @@ public class ChatManager extends ListenableModel
     //Used by modelChanged
     private String eventDirective;
     private String changeUser;
+    private UsersPanel graphicsController;
   
     private User currentUser;
     private User sendedMessageUser;
@@ -91,7 +93,7 @@ public class ChatManager extends ListenableModel
     public void sendCoordinate() 
     {
     	System.out.println("Sending SET_COORDINATE directive to the server...");
-    	String coordinate = currentUser.getxPosition() + "," + currentUser.getyPosition();
+    	String coordinate = currentUser.getUserName() + "," + currentUser.getxPosition() + "," + currentUser.getyPosition();
         output.println("SET_COORDINATE");
         output.println(coordinate);
         output.flush();
@@ -104,8 +106,7 @@ public class ChatManager extends ListenableModel
      * @param ocMessage
      */
     public void sendMessage(String ocMessage)
-    { //TODO check if ocMessage have the attended shape
-    	//GET_MSG
+    { 
     	System.out.println("Sending SET_MSG directive to the server...");
         this.message.setMessageOutComing(ocMessage);
         this.message.setInComingMessage(null);
@@ -128,7 +129,7 @@ public class ChatManager extends ListenableModel
         System.out.println("Handling the server response for directive GET_MSG: " + incomingMessage);
 
         String[] splitMessage = incomingMessage.split("<END/>");
-        this.sendedMessageUser = this.userList.get(splitMessage[0]); //TODO check if sendedMessageUser is usefull
+        this.sendedMessageUser = this.userList.get(splitMessage[0]);
         this.message.setInComingMessage(splitMessage[1]);
         this.message.setMessageOutComing(null);
         
@@ -195,7 +196,8 @@ public class ChatManager extends ListenableModel
     	User user = this.userList.get(responseSplit[0]);
     	user.setxPosition(Integer.parseInt(responseSplit[1]));
     	user.setyPosition(Integer.parseInt(responseSplit[2]));
-    	fireChanged();
+    	
+    	this.graphicsController.fireGraphicsChange(this.userList);
     }
     
     /**
@@ -243,6 +245,11 @@ public class ChatManager extends ListenableModel
     public String getChangeUser()
     {
     	return this.changeUser;
+    }
+    
+    public void setGraphicsController(UsersPanel gc)
+    {
+    	this.graphicsController = gc;
     }
 
 }

@@ -22,9 +22,9 @@ import javax.swing.JPanel;
 /**
  * Panel of the circumscribed Area
  * @author Alexandre DUCREUX & plabadille 
- * @date February, 2017
+ *  @since February, 2017
  */
-public class UsersPanel extends JPanel implements MouseListener, MouseMotionListener, ListenerModel, Runnable {
+public class UsersPanel extends JPanel implements MouseListener, MouseMotionListener, ListenerModel {
 
     private HashMap<String, User> userList;
     private User currentUser;
@@ -33,14 +33,9 @@ public class UsersPanel extends JPanel implements MouseListener, MouseMotionList
     private int previousYPosition;
     private int currentXPosition;
     private int currentYposition;
-    private Thread t1;
-    private volatile boolean threadSuspended;
+
 
     public UsersPanel(HashMap<String, User> userList, User currentUser, ChatManager chatManager) {
-
-        init();
-        t1 = new Thread(this);
-        t1.start();
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
         this.userList = userList;
@@ -50,7 +45,8 @@ public class UsersPanel extends JPanel implements MouseListener, MouseMotionList
         this.previousYPosition = currentUser.getyPosition();
         this.currentXPosition = currentUser.getxPosition();
         this.currentYposition = currentUser.getyPosition();
-
+        
+        init();
     }
 
     public void init() {
@@ -73,7 +69,7 @@ public class UsersPanel extends JPanel implements MouseListener, MouseMotionList
         mainAvatar.drawOval(currentXPosition - (Constants.avatarField / 2), currentYposition - (Constants.avatarField / 2), Constants.avatarField, Constants.avatarField);
         mainAvatar.fillOval(currentXPosition, currentYposition, Constants.avatar, Constants.avatar);
         //mainAvatar.dispose();
-
+        
         //draw other users
         Graphics2D avatar = (Graphics2D) g;
         Color darkRed = new Color(192, 41, 41);
@@ -91,30 +87,60 @@ public class UsersPanel extends JPanel implements MouseListener, MouseMotionList
                      avatar.fillOval(me.getValue().getxPosition(), me.getValue().getyPosition(), Constants.avatar, Constants.avatar);
                  }
     		}
+    		avatar.dispose();
+        } else { //Needed for displaying the map when first user (else have to shake the window..)
+        	mainAvatar.dispose();
         }
-        avatar.dispose();
-
+        
     }
-   
     
     //mouse Listeners implements
     @Override
-    public void mouseClicked(MouseEvent me) {
-
-    }
-
-    @Override
-    public void mousePressed(MouseEvent me) {
+    public void mousePressed(MouseEvent me) 
+    {
         //System.out.println("Mouse Pressed x:" + me.getX() + " y:" + me.getY());
         previousXPostion = me.getX();
         previousYPosition = me.getY();
     }
-
+    
     @Override
-    public void mouseReleased(MouseEvent me) {
-
+    public void mouseDragged(MouseEvent me) 
+    {
+        int dx = me.getX() - previousXPostion;
+        int dy = me.getY() - previousYPosition;
+//        System.out.println("Mouse Dragged x:" + currentXPosition + " y:" + currentYposition);
+        previousXPostion = me.getX();
+        previousYPosition = me.getY();
+        currentXPosition += dx;
+        currentYposition += dy;
+        repaint();
+        
+    }
+    
+    @Override
+    public void mouseReleased(MouseEvent me) 
+    {
+    	System.out.println("mouse released!");
+    	chatManager.getCurrentUser().setxPosition(currentXPosition);
+        chatManager.getCurrentUser().setyPosition(currentYposition);
+        repaint();
+        //if coordinate have change we update them to the server.
+    	if (currentXPosition != chatManager.getCurrentUser().getyPosition() || currentYposition != chatManager.getCurrentUser().getyPosition()) {
+            chatManager.sendCoordinate();
+    	}
+    }
+    
+    public void fireGraphicsChange(HashMap<String, User> userList)
+    {
+    	this.userList = userList;
+    	repaint();
     }
 
+    @Override
+    public void mouseClicked(MouseEvent me) {
+
+    }
+    
     @Override
     public void mouseEntered(MouseEvent me) {
 
@@ -126,21 +152,6 @@ public class UsersPanel extends JPanel implements MouseListener, MouseMotionList
     }
 
     @Override
-    public void mouseDragged(MouseEvent me) {
-
-        int dx = me.getX() - previousXPostion;
-        int dy = me.getY() - previousYPosition;
-        //System.out.println("Mouse Dragged x:" + currentXPosition + " y:" + currentYposition);
-        previousXPostion = me.getX();
-        previousYPosition = me.getY();
-        currentXPosition += dx;
-        currentYposition += dy;
-        if(threadSuspended){
-           this.start();
-        }
-    }
-
-    @Override
     public void mouseMoved(MouseEvent me) {
 
     }
@@ -149,58 +160,5 @@ public class UsersPanel extends JPanel implements MouseListener, MouseMotionList
     public void modelChanged(Object source) {
         repaint();
     }
-    /**
-     * Runnable implements
-     */
-    @Override
-    public void run() {
-        System.out.println("Lancement thread graphique");
-        while (true) {
-            //System.out.println("Mouse Dragged x:" + currentXPosition + " y:" + currentYposition);
-            
-            if (threadSuspended) {
-                synchronized (this) {
-                    while (threadSuspended) {
-                        try {
-                            wait();
-                        } catch (InterruptedException ex) {
-                            Logger.getLogger(ChatManager.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    }
-                }
-
-            }
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(UsersPanel.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            chatManager.getCurrentUser().setxPosition(currentXPosition);
-            chatManager.getCurrentUser().setyPosition(currentYposition);   
-            repaint();
-            stop();
-        }
-    }
-
-    public synchronized void start() {
-        if (t1 == null) {
-            t1 = new Thread(this);
-            threadSuspended = false;
-            System.out.println("thread graphique en démarre");
-            this.start();
-        }
-        else{
-            if(threadSuspended){
-                System.out.println("thread graphique en redémarre");
-                threadSuspended= false;
-                notify();
-            }
-        }
-    }
-
-    public synchronized void stop() {
-        System.out.println("thread graphique en pause");
-        threadSuspended = true;
-    }
-
+    
 }

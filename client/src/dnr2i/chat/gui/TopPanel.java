@@ -14,7 +14,7 @@ import dnr2i.util.event.ListenerModel;
 /**
  * Class which manage the top panel
  * @author Alexandre DUCREUX & plabadille
- * @date February, 2017
+ * @since February, 2017
  */
 public class TopPanel extends JPanel implements ListenerModel {
 
@@ -90,6 +90,9 @@ public class TopPanel extends JPanel implements ListenerModel {
 	    			this.politeMessage("quitté");
 	    			this.updateUserList();
 	    			break;
+	    		case "ALREADY_CONNECTED":
+	    			this.updateUserList();
+	    			break;
 	    		case "NEW_IN_MESSAGE":
 	    			System.out.println("message entrant !");
 	                this.message.add("[ "+chatManager.getSendedMessageUser().getUserName()+" ] "+chatManager.getMessage().getInComingMessage()+"\n");
@@ -99,8 +102,6 @@ public class TopPanel extends JPanel implements ListenerModel {
 	    			System.out.println("message sortant !");
 	                this.message.add("[ "+chatManager.getCurrentUser().getUserName()+" ] "+chatManager.getMessage().getMessageOutComing()+"\n");
 	                publicArea.append(this.message.get(this.message.size() -1));
-	    			break;
-	    		case "ACTUALISE_COORDINATE":
 	    			break;
 	    		default:
 	    			System.out.println("unknow directive");

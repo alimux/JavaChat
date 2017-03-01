@@ -11,7 +11,8 @@ import javax.swing.border.Border;
 
 /**
  * JFrame, mainFrame
- * @author Alexandre DUCREUX & plbadille 02/2017
+ * @author Alexandre DUCREUX & plabadille
+ * @since February, 2017
  */
 
 public class GUIJavaChat extends JFrame {
