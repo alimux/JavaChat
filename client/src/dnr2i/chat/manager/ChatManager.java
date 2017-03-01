@@ -149,6 +149,7 @@ public class ChatManager extends ListenableModel
         	if (this.eventDirective != "ALREADY_CONNECTED") {
         		this.eventDirective = "WELCOME";
         		fireChanged();
+        		this.changeUserCoordinate(response);
         	} else {
         		fireChanged();
         		this.eventDirective = "WELCOME";
