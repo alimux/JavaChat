@@ -25,10 +25,13 @@ public class ChatManager extends ListenableModel
     
     private Message message;
     private HashMap<String, User> userList;
+    
+    //Used by modelChanged
+    private String eventDirective;
+    private String changeUser;
   
     private User currentUser;
     private User sendedMessageUser;
-    private boolean listUpdated = true;
 
     /**
      * constructor
@@ -78,6 +81,7 @@ public class ChatManager extends ListenableModel
         output.flush();
         System.out.println("LOGIN directive send to the server: " + login);
         
+        this.eventDirective = "LOGIN";
         fireChanged();
     }
     
@@ -103,12 +107,14 @@ public class ChatManager extends ListenableModel
     { //TODO check if ocMessage have the attended shape
     	//GET_MSG
     	System.out.println("Sending SET_MSG directive to the server...");
-        message.setMessageOutComing(ocMessage);
+        this.message.setMessageOutComing(ocMessage);
+        this.message.setInComingMessage(null);
         output.println("SET_MSG");
         output.println(ocMessage);
         output.flush();
         System.out.println("New message sent to the server : " + ocMessage);
         
+        this.eventDirective = "NEW_OUT_MESSAGE";
         fireChanged();
     }
 
@@ -124,7 +130,9 @@ public class ChatManager extends ListenableModel
         String[] splitMessage = incomingMessage.split("<END/>");
         this.sendedMessageUser = this.userList.get(splitMessage[0]); //TODO check if sendedMessageUser is usefull
         this.message.setInComingMessage(splitMessage[1]);
+        this.message.setMessageOutComing(null);
         
+        this.eventDirective = "NEW_IN_MESSAGE";
         fireChanged();
     }
     
@@ -135,6 +143,15 @@ public class ChatManager extends ListenableModel
     	if(!this.userExist(userSplit[0])) {
     		User newUser = new User(userSplit[0], Integer.parseInt(userSplit[1]), Integer.parseInt(userSplit[2]));
         	this.userList.put(userSplit[0], newUser);
+        	
+        	this.changeUser = userSplit[0];
+        	if (this.eventDirective != "ALREADY_CONNECTED") {
+        		this.eventDirective = "WELCOME";
+        		fireChanged();
+        	} else {
+        		fireChanged();
+        		this.eventDirective = "WELCOME";
+        	}            
     	}
     }
     
@@ -143,6 +160,10 @@ public class ChatManager extends ListenableModel
     	//called by SET_OLD_USER directive
     	if(this.userExist(oldUser)) {
     		this.userList.remove(oldUser);
+    		
+    		this.changeUser = oldUser;
+    		this.eventDirective = "BYE";
+            fireChanged();
     	}
     	//TODO disconect user
     }
@@ -162,6 +183,7 @@ public class ChatManager extends ListenableModel
     	//called by SET_USERS_LIST directive
         String[] userSplit = userList.split(";");
         for (int i = 0; i < userSplit.length; i++) {
+        	this.eventDirective = "ALREADY_CONNECTED";
         	this.addUserToList(userSplit[i]);
         }
     }
@@ -173,6 +195,7 @@ public class ChatManager extends ListenableModel
     	User user = this.userList.get(responseSplit[0]);
     	user.setxPosition(Integer.parseInt(responseSplit[1]));
     	user.setyPosition(Integer.parseInt(responseSplit[2]));
+    	fireChanged();
     }
     
     /**
@@ -204,30 +227,22 @@ public class ChatManager extends ListenableModel
     }
 
     /**
-     * boolean properties to check if the user list connected is up to date.
-     *
-     * @return
-     */
-    public boolean isListUpdated() {
-        return listUpdated;
-    }
-
-    /**
-     * setter list updated
-     *
-     * @param listUpdated
-     */
-    public void setListUpdated(boolean listUpdated) {
-        this.listUpdated = listUpdated;
-    }
-
-    /**
      * getter give the user
      *
      * @return
      */
     public User getSendedMessageUser() {
         return sendedMessageUser;
+    }
+    
+    public String getEventDirective()
+    {
+    	return this.eventDirective;
+    }
+    
+    public String getChangeUser()
+    {
+    	return this.changeUser;
     }
 
 }

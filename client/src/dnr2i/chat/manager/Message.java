@@ -26,6 +26,7 @@ public class Message extends ListenableModel{
 
     public void setMessageOutComing(String message) {
         this.outComingMessage = message;
+        this.messages.add(this);
         //System.out.println("Classe Message OC: "+message);
         fireChanged();
     }
@@ -36,10 +37,12 @@ public class Message extends ListenableModel{
 
     public void setInComingMessage(String inComingMessage) {
         this.inComingMessage = inComingMessage;
+        this.messages.add(this);
         //System.out.println("Classe Message IC: "+inComingMessage);
         fireChanged();
     }
     
+    //TODO useless?
     public ArrayList<Message> setMessage(Message message){
         messages.add(message);
         return messages;

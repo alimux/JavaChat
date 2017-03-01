@@ -3,6 +3,7 @@ package dnr2i.chat.gui;
 import dnr2i.chat.manager.ChatManager;
 import dnr2i.chat.user.User;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Map.Entry;
@@ -21,6 +22,7 @@ public class TopPanel extends JPanel implements ListenerModel {
     private JList usersList;
     private ChatManager chatManager;
     private final DefaultListModel model;
+    private ArrayList<String> message;
 
     /**
      * constructor, call initPanel to initialize panel
@@ -32,7 +34,7 @@ public class TopPanel extends JPanel implements ListenerModel {
         this.chatManager = cm;
         chatManager.addModelListener(this);
         model = new DefaultListModel();
-        
+        this.message = new ArrayList<String>();        
     }
 
     /**
@@ -69,40 +71,62 @@ public class TopPanel extends JPanel implements ListenerModel {
     }
 
     @Override
-    public void modelChanged(Object source) {
-        System.out.println("update ! "+chatManager.getCurrentUser());
-        if (chatManager.getCurrentUser()!=null) { 
-                //System.out.println(chatManager.getCurrentUser().getUserName()+" vient de se connecter au Panel TOP");
-                publicArea.setText("[ "+chatManager.getCurrentUser().getUserName()+" ] vient de se connecter au chat...\n");
-
-        }
+    public void modelChanged(Object source) 
+    {
+    	String eventDirective = this.chatManager.getEventDirective();
+    	System.out.println("Event directive received: " + eventDirective + ". Handling directive...");
+    	if (eventDirective != null) {
+    		switch(eventDirective) {
+	    		case "LOGIN":
+	    			this.message.add("[ System ] Bienvenu "+ this.chatManager.getCurrentUser().getUserName() +"!\n");
+	    			publicArea.setText(this.message.get(this.message.size() -1));
+	    			this.updateUserList();
+	    			break;
+	    		case "WELCOME":
+	    			this.politeMessage("rejoint");
+	    			this.updateUserList();
+	    			break;
+	    		case "BYE":
+	    			this.politeMessage("quitté");
+	    			this.updateUserList();
+	    			break;
+	    		case "NEW_IN_MESSAGE":
+	    			System.out.println("message entrant !");
+	                this.message.add("[ "+chatManager.getSendedMessageUser().getUserName()+" ] "+chatManager.getMessage().getInComingMessage()+"\n");
+	                publicArea.append(this.message.get(this.message.size() -1));
+	    			break;
+	    		case "NEW_OUT_MESSAGE":
+	    			System.out.println("message sortant !");
+	                this.message.add("[ "+chatManager.getCurrentUser().getUserName()+" ] "+chatManager.getMessage().getMessageOutComing()+"\n");
+	                publicArea.append(this.message.get(this.message.size() -1));
+	    			break;
+	    		case "ACTUALISE_COORDINATE":
+	    			break;
+	    		default:
+	    			System.out.println("unknow directive");
+	    	}
+    	}    
         
-        if(chatManager.getMessage()!=null){
-            //System.out.println("message non null");
-            if(chatManager.getMessage().getMessageOutComing()!=null){
-                System.out.println("message sortant !");
-                publicArea.append("[ "+chatManager.getCurrentUser().getUserName()+" ] "+chatManager.getMessage().getMessageOutComing()+"\n");
-            }
-            if(chatManager.getMessage().getInComingMessage()!=null){
-                System.out.println("message entrant !");
-                publicArea.append("[ "+chatManager.getSendedMessageUser().getUserName()+" ] "+chatManager.getMessage().getInComingMessage()+"\n");
-            }
-        }
-        if(!chatManager.getUserList().isEmpty() && chatManager.isListUpdated()){
-        	Set<Entry<String, User>> set = this.chatManager.getUserList().entrySet();
-    		Iterator<Entry<String, User>> i = set.iterator();
-    		
-    		while(i.hasNext()) {
-    			Entry<String, User> me = i.next();
-    			model.addElement(me.getKey());
-    		}
-           
-            usersList.setModel(model);
-            chatManager.setListUpdated(false);
-            
-        }
-        
-        
+    }
+    
+    private void politeMessage(String action)
+    {
+    	this.message.add("[ System ] "+ this.chatManager.getChangeUser() +" a " + action + " le chat!\n");
+		publicArea.append(this.message.get(this.message.size() -1));
+    }
+    
+    private void updateUserList()
+    {
+    	Set<Entry<String, User>> set = this.chatManager.getUserList().entrySet();
+		Iterator<Entry<String, User>> i = set.iterator();
+		//we clear the model in order to don't display again older user.
+		model.clear();
+		while(i.hasNext()) {
+			Entry<String, User> me = i.next();
+			model.addElement(me.getKey());
+		}
+       
+        usersList.setModel(model);
     }
 
 }
