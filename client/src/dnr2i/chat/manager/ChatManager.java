@@ -166,8 +166,8 @@ public class ChatManager extends ListenableModel
     		this.changeUser = oldUser;
     		this.eventDirective = "BYE";
             fireChanged();
+            this.graphicsController.fireGraphicsChange(this.userList);
     	}
-    	//TODO disconect user
     }
     
     public boolean userExist(String username)
@@ -199,6 +199,24 @@ public class ChatManager extends ListenableModel
     	user.setyPosition(Integer.parseInt(responseSplit[2]));
     	
     	this.graphicsController.fireGraphicsChange(this.userList);
+    }
+    
+    public void logout()
+    {
+    	System.out.println("Sending LOGOUT directive to the server...");
+    	output.println("LOGOUT");
+        output.println(this.currentUser.getUserName());
+        output.flush();
+        
+        //clean close:
+        try {
+        	this.output.close();
+            this.input.close();
+            this.t1.interrupt();
+			this.socket.close();
+		} catch (IOException e) {
+			System.out.print("Error closing the socket: " + e.getMessage());
+		}
     }
     
     /**

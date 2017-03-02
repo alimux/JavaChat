@@ -5,6 +5,9 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.net.URL;
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -55,7 +58,15 @@ public class GUIJavaChat extends JFrame {
         this.getContentPane().add(mainPanel);
 
         //JFrame options
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+	        
+        this.addWindowListener(new WindowAdapter() {
+        	  public void windowClosing(WindowEvent we) {
+        		  chatManager.logout();
+        		  System.exit(0);
+        	  }
+    	});
+        
         pack();
         setVisible(false);
         this.setIconImage(icon.getImage());
@@ -68,6 +79,7 @@ public class GUIJavaChat extends JFrame {
         login();
 
     }
+   
 
     /**
      * InputDialog to input a login name

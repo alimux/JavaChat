@@ -131,7 +131,8 @@ public class ChatServerClient implements Runnable
 						break;
 					case "LOGOUT":
 						System.out.println("Directive LOGOUT received, handling the request...");
-						this.server.removeClient(this.username);
+						input = this.streamIn.readLine();
+						this.server.removeClient(input);
 						this.close();
 						break;
 					default:
