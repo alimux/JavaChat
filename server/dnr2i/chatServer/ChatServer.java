@@ -56,7 +56,7 @@ public class ChatServer
 			//Notify others client:
 			while(i.hasNext()) {
 				Entry<String, ChatServerClient> me = i.next();
-				me.getValue().notifyNewUser(clientThread.getUsername() + "," + clientThread.getX() + "," + clientThread.getY());
+				me.getValue().notifyNewUser(clientThread.getUsername() + "<END/>" + clientThread.getX() + "<END/>" + clientThread.getY());
 			}
 			//Send new client the users list:
 			clientThread.notifyUserList(this.getUsersList());
@@ -125,7 +125,7 @@ public class ChatServer
 		
 		while(i.hasNext()) {
 			Entry<String, ChatServerClient> me = i.next();
-			if (me.getKey() != input.split(",")[0]) {
+			if (me.getKey() != input.split("<END/>")[0]) {
 				me.getValue().notifyNewCoordinate(input);
 			}
 		}
@@ -144,7 +144,7 @@ public class ChatServer
    
 		while(i.hasNext()) {
 			Entry<String, ChatServerClient> me = i.next();
-			response += me.getKey() + "," + me.getValue().getX() + "," + me.getValue().getY() + ";";
+			response += me.getKey() + "<END/>" + me.getValue().getX() + "<END/>" + me.getValue().getY() + "<USER/>";
 		}
 		
 		return response;

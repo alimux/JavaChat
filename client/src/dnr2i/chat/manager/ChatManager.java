@@ -78,7 +78,7 @@ public class ChatManager extends ListenableModel
 
         //send login to server
         System.out.println("Sending LOGIN directive to the server...");
-        String login = loginName + "," + x + "," + y;
+        String login = loginName + "<END/>" + x + "<END/>" + y;
         output.println("LOGIN");
         output.println(login);
         output.flush();
@@ -97,7 +97,7 @@ public class ChatManager extends ListenableModel
     public void sendCoordinate() 
     {
     	System.out.println("Sending SET_COORDINATE directive to the server...");
-    	String coordinate = currentUser.getUserName() + "," + currentUser.getxPosition() + "," + currentUser.getyPosition();
+    	String coordinate = currentUser.getUserName() + "<END/>" + currentUser.getxPosition() + "<END/>" + currentUser.getyPosition();
         output.println("SET_COORDINATE");
         output.println(coordinate);
         output.flush();
@@ -112,10 +112,10 @@ public class ChatManager extends ListenableModel
     public void sendMessage(String ocMessage)
     { 
     	System.out.println("Sending SET_MSG directive to the server...");
-    	Message message = new Message(ocMessage.split(",")[0], this.currentUser.getUserName(), this.getTime());
+    	Message message = new Message(ocMessage, this.currentUser.getUserName(), this.getTime());
     	this.message.add(message);
     	
-    	String request = ocMessage + "," + this.getLastMessage().getTime();
+    	String request = ocMessage + "<END/>" + this.getLastMessage().getTime();
         output.println("SET_MSG");
         output.println(request);
         output.flush();
@@ -136,7 +136,7 @@ public class ChatManager extends ListenableModel
 
         String[] splitMessage = incomingMessage.split("<END/>");
         
-        Message message = new Message(splitMessage[1].split(",")[0], splitMessage[0], splitMessage[1].split(",")[1]);
+        Message message = new Message(splitMessage[1], splitMessage[0], splitMessage[2]);
     	this.message.add(message);
         
         this.eventDirective = "NEW_IN_MESSAGE";
@@ -146,7 +146,7 @@ public class ChatManager extends ListenableModel
     public void addUserToList(String response)
     {
     	//called by SET_NEW_USER directive
-    	String[] userSplit = response.split(",");
+    	String[] userSplit = response.split("<END/>");
     	if(!this.userExist(userSplit[0])) {
     		User newUser = new User(userSplit[0], Integer.parseInt(userSplit[1]), Integer.parseInt(userSplit[2]));
         	this.userList.put(userSplit[0], newUser);
@@ -191,8 +191,9 @@ public class ChatManager extends ListenableModel
      */
     public void retrieveUsersList(String userList)
     {
+    	System.out.println(userList);
     	//called by SET_USERS_LIST directive
-        String[] userSplit = userList.split(";");
+        String[] userSplit = userList.split("<USER/>");
         for (int i = 0; i < userSplit.length; i++) {
         	this.eventDirective = "ALREADY_CONNECTED";
         	this.addUserToList(userSplit[i]);
@@ -202,7 +203,7 @@ public class ChatManager extends ListenableModel
     public void changeUserCoordinate(String response)
     {
     	//called by SET_NEW_COORDINATE directive
-    	String[] responseSplit = response.split(",");
+    	String[] responseSplit = response.split("<END/>");
     	User user = this.userList.get(responseSplit[0]);
     	user.setxPosition(Integer.parseInt(responseSplit[1]));
     	user.setyPosition(Integer.parseInt(responseSplit[2]));

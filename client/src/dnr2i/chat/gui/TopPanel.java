@@ -4,7 +4,6 @@ import dnr2i.chat.manager.ChatManager;
 import dnr2i.chat.manager.Message;
 import dnr2i.chat.user.User;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Map.Entry;
@@ -80,12 +79,14 @@ public class TopPanel extends JPanel implements ListenerModel {
 	    		case "LOGIN":
 	    		case "WELCOME":
 	    		case "BYE":
-	    		case "ALREADY_CONNECTED":
 	    			this.updateUserList();
 	    		case "NEW_IN_MESSAGE":
 	    		case "NEW_OUT_MESSAGE":
 	    			Message message = this.chatManager.getLastMessage();
 	                publicArea.append("[ " + message.getAuthor()+" : "+ message.getTime() + " ] " + message.getMessage() + "\n");
+	    			break;
+	    		case "ALREADY_CONNECTED":
+	    			this.updateUserList();
 	    			break;
 	    		default:
 	    			System.out.println("unknow directive");

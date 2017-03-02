@@ -55,7 +55,7 @@ public class ChatServerClient implements Runnable
 	 */
 	private void handleLogin(String loginMessage) throws IOException
 	{
-		String[] data = loginMessage.split(",");
+		String[] data = loginMessage.split("<END/>");
 		
 		if(data.length == 3) {
 			System.out.println("The message shape of Directive LOGIN is correct, connexion almost done.");
@@ -163,7 +163,7 @@ public class ChatServerClient implements Runnable
 	 */
 	private void changeCoordinate(String input)
 	{
-		String[] part = input.split(",");
+		String[] part = input.split("<END/>");
 		if (part.length == 2) {
 			System.out.println("The coordinate for user " + this.username + " have been change to " + part[0] + "/" + part[1]);
 			this.setX(Integer.parseInt(part[0]));
