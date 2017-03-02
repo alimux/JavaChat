@@ -14,7 +14,7 @@ import java.util.Set;
  */
 public class ChatServer 
 {
-
+	private final int RADIUS = 75;
 	private HashMap<String, ChatServerDirectiveManager> clients;
 	private int nbClients = 0;
 	
@@ -109,23 +109,32 @@ public class ChatServer
 		
 		String out = username + "<END/>" + content;
 		System.out.println("User connected: " + this.clients.size());
+		
+		ChatServerDirectiveManager centerUser = this.clients.get(username);
+		int xCenter = centerUser.getX();
+		int yCenter = centerUser.getY();
 		while(i.hasNext()) {
 			Entry<String, ChatServerDirectiveManager> me = i.next();
 			if (me.getKey() != username) {
-				//TODO: check the location
-				me.getValue().send(out);
+				//We check if this user is close enough to the sender
+				System.out.println(xCenter +" "+ yCenter +" "+ me.getValue().getX() +" "+ me.getValue().getY());
+				if (this.canEar(xCenter, yCenter, me.getValue().getX(), me.getValue().getY())) {
+					me.getValue().send(out);
+				}
 			}
 		}
 	}
 	
 	public synchronized void handleNewCoordinate(String input)
 	{
+		String[] split = input.split("<END/>");
+		
 		Set<Entry<String, ChatServerDirectiveManager>> set = this.clients.entrySet();
 		Iterator<Entry<String, ChatServerDirectiveManager>> i = set.iterator();
 		
 		while(i.hasNext()) {
 			Entry<String, ChatServerDirectiveManager> me = i.next();
-			if (me.getKey() != input.split("<END/>")[0]) {
+			if (me.getKey() != split[0]) { //we tell the other the change
 				me.getValue().notifyNewCoordinate(input);
 			}
 		}
@@ -148,6 +157,26 @@ public class ChatServer
 		}
 		
 		return response;
+	}
+	
+	/**
+	 * Check if a user is in the earing zone of another one.
+	 * @param x_center
+	 * @param y_center
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	private boolean canEar(int x_center, int y_center, int x, int y)
+	{	
+		//the earing zone is a circle, we used pythagoras theorem to do the math.
+		double compute = Math.pow((x - x_center), 2) + Math.pow((y - y_center), 2);
+		double radiusSquared = Math.pow(this.RADIUS, 2);
+		
+		System.out.println("compute: " + compute + " radiusSquared: " + radiusSquared);
+		System.out.print(compute <= radiusSquared ? true : false);
+		//if you don't want the person in the circle line to match use '<' instead of '=='
+		return compute <= radiusSquared ? true : false;
 	}
 	
 	/**

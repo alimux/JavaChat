@@ -165,10 +165,10 @@ public class ChatServerDirectiveManager implements Runnable
 	private void changeCoordinate(String input)
 	{
 		String[] part = input.split("<END/>");
-		if (part.length == 2) {
-			System.out.println("The coordinate for user " + this.username + " have been change to " + part[0] + "/" + part[1]);
-			this.setX(Integer.parseInt(part[0]));
-			this.setY(Integer.parseInt(part[1]));
+		if (part.length == 3) {
+			System.out.println("The coordinate for user " + this.username + " have been change to " + part[1] + "/" + part[2]);
+			this.setX(Integer.parseInt(part[1]));
+			this.setY(Integer.parseInt(part[2]));
 		} else {
 			System.out.println("The shape of SET_COORDINATE directive received is not correct.");
 		}
@@ -236,6 +236,7 @@ public class ChatServerDirectiveManager implements Runnable
 	}
 
 	public void setX(int x) {
+		System.out.println("update x: "+x );
 		this.x = x;
 	}
 
@@ -244,6 +245,7 @@ public class ChatServerDirectiveManager implements Runnable
 	}
 
 	public void setY(int y) {
+		System.out.println("update y: "+y );
 		this.y = y;
 	}
 	
