@@ -1,6 +1,7 @@
 package dnr2i.chat.gui;
 
 import dnr2i.chat.manager.ChatManager;
+import dnr2i.chat.manager.Message;
 import dnr2i.chat.user.User;
 
 import java.util.ArrayList;
@@ -22,7 +23,6 @@ public class TopPanel extends JPanel implements ListenerModel {
     private JList usersList;
     private ChatManager chatManager;
     private final DefaultListModel model;
-    private ArrayList<String> message;
 
     /**
      * constructor, call initPanel to initialize panel
@@ -34,7 +34,6 @@ public class TopPanel extends JPanel implements ListenerModel {
         this.chatManager = cm;
         chatManager.addModelListener(this);
         model = new DefaultListModel();
-        this.message = new ArrayList<String>();        
     }
 
     /**
@@ -76,44 +75,23 @@ public class TopPanel extends JPanel implements ListenerModel {
     	String eventDirective = this.chatManager.getEventDirective();
     	System.out.println("Event directive received: " + eventDirective + ". Handling directive...");
     	if (eventDirective != null) {
+    		//not really necessary anymore but we leave it for some possible customization:
     		switch(eventDirective) {
 	    		case "LOGIN":
-	    			this.message.add("[ System ] Bienvenu "+ this.chatManager.getCurrentUser().getUserName() +"!\n");
-	    			publicArea.setText(this.message.get(this.message.size() -1));
-	    			this.updateUserList();
-	    			break;
 	    		case "WELCOME":
-	    			this.politeMessage("rejoint");
-	    			this.updateUserList();
-	    			break;
 	    		case "BYE":
-	    			this.politeMessage("quitté");
-	    			this.updateUserList();
-	    			break;
 	    		case "ALREADY_CONNECTED":
 	    			this.updateUserList();
-	    			break;
 	    		case "NEW_IN_MESSAGE":
-	    			System.out.println("message entrant !");
-	                this.message.add("[ "+chatManager.getSendedMessageUser().getUserName()+" ] "+chatManager.getMessage().getInComingMessage()+"\n");
-	                publicArea.append(this.message.get(this.message.size() -1));
-	    			break;
 	    		case "NEW_OUT_MESSAGE":
-	    			System.out.println("message sortant !");
-	                this.message.add("[ "+chatManager.getCurrentUser().getUserName()+" ] "+chatManager.getMessage().getMessageOutComing()+"\n");
-	                publicArea.append(this.message.get(this.message.size() -1));
+	    			Message message = this.chatManager.getLastMessage();
+	                publicArea.append("[ " + message.getAuthor()+" : "+ message.getTime() + " ] " + message.getMessage() + "\n");
 	    			break;
 	    		default:
 	    			System.out.println("unknow directive");
 	    	}
     	}    
         
-    }
-    
-    private void politeMessage(String action)
-    {
-    	this.message.add("[ System ] "+ this.chatManager.getChangeUser() +" a " + action + " le chat!\n");
-		publicArea.append(this.message.get(this.message.size() -1));
     }
     
     private void updateUserList()

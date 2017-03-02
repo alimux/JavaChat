@@ -77,7 +77,6 @@ public class DownPanel extends JPanel implements ActionListener, ListenerModel{
         Object source = e.getSource();
         if(source==send){
             messageOutComing = input.getText().toString();
-            chatManager.getMessage().setMessageOutComing(messageOutComing);
             chatManager.sendMessage(messageOutComing);
             System.out.println("message entré dans la zone de texte : "+messageOutComing);
             input.setText("");

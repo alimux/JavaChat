@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 
 /**
@@ -24,16 +27,14 @@ public class ChatManager extends ListenableModel
     private BufferedReader input;
     public Thread t1;
     
-    private Message message;
+    private ArrayList<Message> message;
     private HashMap<String, User> userList;
     
     //Used by modelChanged
     private String eventDirective;
-    private String changeUser;
     private UsersPanel graphicsController;
   
     private User currentUser;
-    private User sendedMessageUser;
 
     /**
      * constructor
@@ -42,7 +43,7 @@ public class ChatManager extends ListenableModel
     public ChatManager() 
     {
         this.userList = new HashMap<String, User>();
-        this.message = new Message();
+        this.message = new ArrayList<Message>();
         
         System.out.println("Connection in progress...");
         Connection connection = new Connection();
@@ -83,6 +84,9 @@ public class ChatManager extends ListenableModel
         output.flush();
         System.out.println("LOGIN directive send to the server: " + login);
         
+        Message message = new Message("Bienvenu " + loginName + "!", "System", this.getTime());
+    	this.message.add(message);
+        
         this.eventDirective = "LOGIN";
         fireChanged();
     }
@@ -108,12 +112,14 @@ public class ChatManager extends ListenableModel
     public void sendMessage(String ocMessage)
     { 
     	System.out.println("Sending SET_MSG directive to the server...");
-        this.message.setMessageOutComing(ocMessage);
-        this.message.setInComingMessage(null);
+    	Message message = new Message(ocMessage.split(",")[0], this.currentUser.getUserName(), this.getTime());
+    	this.message.add(message);
+    	
+    	String request = ocMessage + "," + this.getLastMessage().getTime();
         output.println("SET_MSG");
-        output.println(ocMessage);
+        output.println(request);
         output.flush();
-        System.out.println("New message sent to the server : " + ocMessage);
+        System.out.println("New message sent to the server : " + request);
         
         this.eventDirective = "NEW_OUT_MESSAGE";
         fireChanged();
@@ -129,9 +135,9 @@ public class ChatManager extends ListenableModel
         System.out.println("Handling the server response for directive GET_MSG: " + incomingMessage);
 
         String[] splitMessage = incomingMessage.split("<END/>");
-        this.sendedMessageUser = this.userList.get(splitMessage[0]);
-        this.message.setInComingMessage(splitMessage[1]);
-        this.message.setMessageOutComing(null);
+        
+        Message message = new Message(splitMessage[1].split(",")[0], splitMessage[0], splitMessage[1].split(",")[1]);
+    	this.message.add(message);
         
         this.eventDirective = "NEW_IN_MESSAGE";
         fireChanged();
@@ -145,9 +151,10 @@ public class ChatManager extends ListenableModel
     		User newUser = new User(userSplit[0], Integer.parseInt(userSplit[1]), Integer.parseInt(userSplit[2]));
         	this.userList.put(userSplit[0], newUser);
         	
-        	this.changeUser = userSplit[0];
         	if (this.eventDirective != "ALREADY_CONNECTED") {
         		this.eventDirective = "WELCOME";
+        		Message message = new Message(userSplit[0] + " s'est connecté!", "System", this.getTime());
+            	this.message.add(message);
         		fireChanged();
         		this.changeUserCoordinate(response);
         	} else {
@@ -163,7 +170,9 @@ public class ChatManager extends ListenableModel
     	if(this.userExist(oldUser)) {
     		this.userList.remove(oldUser);
     		
-    		this.changeUser = oldUser;
+    		Message message = new Message(oldUser + " s'est déconnecté!", "System", this.getTime());
+        	this.message.add(message);
+    		
     		this.eventDirective = "BYE";
             fireChanged();
             this.graphicsController.fireGraphicsChange(this.userList);
@@ -219,6 +228,13 @@ public class ChatManager extends ListenableModel
 		}
     }
     
+    private String getTime()
+    {
+    	Calendar cal = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+        return sdf.format(cal.getTime());
+    }
+    
     /**
      * return the current user
      *
@@ -230,15 +246,6 @@ public class ChatManager extends ListenableModel
     }
 
     /**
-     * getter message instance
-     *
-     * @return
-     */
-    public Message getMessage() {
-        return message;
-    }
-
-    /**
      * getter user list
      *
      * @return
@@ -247,28 +254,20 @@ public class ChatManager extends ListenableModel
         return this.userList;
     }
 
-    /**
-     * getter give the user
-     *
-     * @return
-     */
-    public User getSendedMessageUser() {
-        return sendedMessageUser;
-    }
     
     public String getEventDirective()
     {
     	return this.eventDirective;
     }
     
-    public String getChangeUser()
-    {
-    	return this.changeUser;
-    }
-    
     public void setGraphicsController(UsersPanel gc)
     {
     	this.graphicsController = gc;
+    }
+    
+    public Message getLastMessage()
+    {
+    	return this.message.get(this.message.size() -1);
     }
 
 }

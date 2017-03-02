@@ -100,14 +100,14 @@ public class ChatServer
 	 * @param username
 	 * @param message
 	 */
-	public synchronized void handleClientMessage(String username, String message)
+	public synchronized void handleClientMessage(String username, String content)
 	{
-		System.out.println("handling message: " + message + " from: " + username);
+		System.out.println("handling message: " + content + " from: " + username);
 		//We use an iterator to send the message to other client
 		Set<Entry<String, ChatServerClient>> set = this.clients.entrySet();
 		Iterator<Entry<String, ChatServerClient>> i = set.iterator();
 		
-		String out = username + "<END/>" + message;
+		String out = username + "<END/>" + content;
 		System.out.println("User connected: " + this.clients.size());
 		while(i.hasNext()) {
 			Entry<String, ChatServerClient> me = i.next();
