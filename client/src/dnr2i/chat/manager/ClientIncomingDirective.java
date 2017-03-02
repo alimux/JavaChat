@@ -4,14 +4,19 @@ import java.io.BufferedReader;
 import java.io.IOException;
 
 
-public class ClientIncomingDirective implements Runnable {
-
+/**
+ * A class used in a thread by the manager to wait for incoming server directive
+ * @author Alexandre DUCREUX & plabadille
+ * @since February, 2017
+ */
+public class ClientIncomingDirective implements Runnable 
+{
 	private ChatManager cm;
     private BufferedReader input;
 		
 	/**
-	 * @param socket
-	 * @param cs
+	 * @param cm
+	 * @param input
 	 */
 	public ClientIncomingDirective(ChatManager cm, BufferedReader input)
 	{
@@ -20,7 +25,8 @@ public class ClientIncomingDirective implements Runnable {
 	}
 	
 	/**
-	 * Wait for user connection then create a new client thread
+	 * Dispatch server directive to according manager function.
+	 * Just run when this.input.readLine() get something from the server
 	 * @see java.lang.Runnable#run()
 	 * @throws IOException
 	 */
@@ -66,4 +72,3 @@ public class ClientIncomingDirective implements Runnable {
 	}
 	
 }
-

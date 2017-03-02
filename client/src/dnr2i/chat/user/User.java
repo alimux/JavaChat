@@ -3,25 +3,24 @@ package dnr2i.chat.user;
 import dnr2i.util.event.ListenableModel;
 
 /**
- * Class which defines a TChatter
- *
- * @author Alexandre DUCREUX & plbadille 02/2017
+ * A class for representing an user.
+ * @author Alexandre DUCREUX & plabadille
+ * @since February, 2017
  */
-public class User extends ListenableModel {
-
+public class User extends ListenableModel 
+{
     private String userName;
     private int xPosition;
     private int yPosition;
-    private boolean canHear = true;
 
     /**
-     * constructor user
-     *
+     * Build an user instance
      * @param userName
      * @param xPosition
      * @param yPosition
      */
-    public User(String userName, int xPosition, int yPosition) {
+    public User(String userName, int xPosition, int yPosition)
+    {
         this.userName = userName;
         this.xPosition = xPosition;
         this.yPosition = yPosition;
@@ -32,7 +31,8 @@ public class User extends ListenableModel {
      *
      * @return
      */
-    public String getUserName() {
+    public String getUserName() 
+    {
         return userName;
     }
 
@@ -41,7 +41,8 @@ public class User extends ListenableModel {
      *
      * @param userName
      */
-    public void setUserName(String userName) {
+    public void setUserName(String userName)
+    {
         this.userName = userName;
 
     }
@@ -51,7 +52,8 @@ public class User extends ListenableModel {
      *
      * @return
      */
-    public int getxPosition() {
+    public int getxPosition()
+    {
         return xPosition;
     }
 
@@ -60,8 +62,8 @@ public class User extends ListenableModel {
      *
      * @param xPosition
      */
-    public void setxPosition(int xPosition) {
-        //System.out.println("update user x:" + xPosition);
+    public void setxPosition(int xPosition)
+    {
         this.xPosition = xPosition;
         fireChanged();
     }
@@ -71,7 +73,8 @@ public class User extends ListenableModel {
      *
      * @return
      */
-    public int getyPosition() {
+    public int getyPosition()
+    {
         return yPosition;
     }
 
@@ -80,11 +83,10 @@ public class User extends ListenableModel {
      *
      * @param yPosition
      */
-    public void setyPosition(int yPosition) {
-        //System.out.println("update user y:" + yPosition);
+    public void setyPosition(int yPosition)
+    {
         this.yPosition = yPosition;
         fireChanged();
     }
-
 
 }

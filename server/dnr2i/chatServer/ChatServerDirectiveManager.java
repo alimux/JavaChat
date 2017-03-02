@@ -11,9 +11,8 @@ import java.net.Socket;
  * @author plabadille, Alexandre DUCREUX
  * @since February, 2017
  */
-public class ChatServerClient implements Runnable
+public class ChatServerDirectiveManager implements Runnable
 {
-
 	private ChatServer server;
 	private Socket socket;
 	private String username;
@@ -22,12 +21,12 @@ public class ChatServerClient implements Runnable
 	private PrintWriter streamOut;	
 	
 	/**
-	 * Build a new client thread
+	 * Manage directive flow (client/server) for a specific client (one instance by client)
 	 * @param server
 	 * @param socket
 	 * @throws IOException
 	 */
-	public ChatServerClient(ChatServer server, Socket socket) throws IOException
+	public ChatServerDirectiveManager(ChatServer server, Socket socket) throws IOException
 	{
 		System.out.println("New thread creation");
 		this.server = server;
@@ -146,8 +145,9 @@ public class ChatServerClient implements Runnable
 	
 	
 	/**
+	 * Send to the client a GET_MSG directive.
 	 * Broadcast a message to the user associated with this thread
-	 * @param msg
+	 * @param output
 	 */
 	public void send(String output)
 	{
@@ -158,7 +158,8 @@ public class ChatServerClient implements Runnable
 	}
 	
 	/**
-	 * Check if the content of SET_COORDINATE directive is correct and handle it.
+	 * Handle SET_COORDINATE directive send by the client
+	 * Check if the content of SET_COORDINATE directive is correct and update coordinate.
 	 * @param input
 	 */
 	private void changeCoordinate(String input)
@@ -173,6 +174,11 @@ public class ChatServerClient implements Runnable
 		}
 	}
 	
+	
+    /**
+     * Send to the client a SET_NEW_USER directive.
+     * @param output
+     */
     public void notifyNewUser(String output)
     {
     	System.out.println("Server notify client: "+ this.getUsername() + " join to connected users: " + output);
@@ -181,6 +187,10 @@ public class ChatServerClient implements Runnable
 		this.streamOut.flush();
     }
     
+    /**
+     * Send to the client a SET_USERS_LIST directive.
+     * @param output
+     */
     public void notifyUserList(String output)
     {
     	System.out.println("Server notify new client of connected user: " + output);
@@ -189,6 +199,10 @@ public class ChatServerClient implements Runnable
 		this.streamOut.flush();
     }
     
+    /**
+     * Send to the client a SET_OLD_USER directive.
+     * @param output
+     */
     public void notifyOldUser(String output)
     {
     	System.out.println("Server notify client quit to connected users: " + output);
@@ -197,6 +211,10 @@ public class ChatServerClient implements Runnable
 		this.streamOut.flush();
     }
     
+    /**
+     * Send to the client a SET_NEW_COORDINATE directive.
+     * @param output
+     */
     public void notifyNewCoordinate(String output)
     {
     	System.out.println("Server notify client move to connected users: " + output);

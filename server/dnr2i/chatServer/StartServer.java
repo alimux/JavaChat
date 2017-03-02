@@ -5,10 +5,9 @@ package dnr2i.chatServer;
  * @author plabadille, Alexandre DUCREUX
  * @since February, 2017
  */
-public class StartServer {
-	
+public class StartServer
+{
 	public final static int PORT = 3636;
-	public final static String HOST = "localhost";
 
 	public static void main(String[] args) 
 	{		

@@ -15,7 +15,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 
 /**
- * Class which manages sending & retrieving message
+ * A class for managing interaction between this client and the chat server.
  * @author Alexandre DUCREUX & plabadille
  * @since February, 2017
  */
@@ -26,19 +26,16 @@ public class ChatManager extends ListenableModel
     private PrintWriter output;
     private BufferedReader input;
     public Thread t1;
-    
-    private ArrayList<Message> message;
-    private HashMap<String, User> userList;
-    
-    //Used by modelChanged
+   
     private String eventDirective;
     private UsersPanel graphicsController;
-  
+    private ArrayList<Message> message;
+    private HashMap<String, User> userList;
     private User currentUser;
 
+    
     /**
-     * constructor
-     *
+     * Build a chat manager instance, have a socket connection to the chat server and a thread to listen to server directive.
      */
     public ChatManager() 
     {
@@ -65,8 +62,8 @@ public class ChatManager extends ListenableModel
     }
     
     /**
-     * Method which is called on login, send login and position to server
-     *
+     * Login method for connecting the user to the server.
+     * Send a LOGIN directive to the server and handle welcoming message.
      * @param loginName
      * @param x
      * @param y
@@ -92,7 +89,7 @@ public class ChatManager extends ListenableModel
     }
     
     /**
-     * method wich update the coordinates of the current user
+     * Send a SET_COORDINATE directive to the server to update the user position
      */
     public void sendCoordinate() 
     {
@@ -105,9 +102,9 @@ public class ChatManager extends ListenableModel
     }
 
     /**
-     * send message method
-     *
-     * @param ocMessage
+     * Send a SET_MESSAGE directive to the server to send the user message
+     * Called by an eventListener, shape the directive content, create the message instance and fireChanged locally to update the client view.
+     * @param ocMessage (content of the message)
      */
     public void sendMessage(String ocMessage)
     { 
@@ -125,10 +122,11 @@ public class ChatManager extends ListenableModel
         fireChanged();
     }
 
+   
     /**
-     * retrieve message method
-     *
-     * @param out
+     * Handle GET_MSG directive from the server
+     * Decode the content directive, create the Message instance then fire changed to update the view
+     * @param incomingMessage
      */
     public void retrieveMessage(String incomingMessage) 
     {
@@ -143,30 +141,38 @@ public class ChatManager extends ListenableModel
         fireChanged();
     }
     
+    /**
+     * Handle a SET_NEW_USER directive from the server
+     * Decode the directive content, update the user list then fireChange to update the view
+     * @param response
+     */
     public void addUserToList(String response)
     {
-    	//called by SET_NEW_USER directive
     	String[] userSplit = response.split("<END/>");
     	if(!this.userExist(userSplit[0])) {
     		User newUser = new User(userSplit[0], Integer.parseInt(userSplit[1]), Integer.parseInt(userSplit[2]));
         	this.userList.put(userSplit[0], newUser);
         	
-        	if (this.eventDirective != "ALREADY_CONNECTED") {
+        	if (this.eventDirective != "ALREADY_CONNECTED") { //the currentUser is older than the new one
         		this.eventDirective = "WELCOME";
         		Message message = new Message(userSplit[0] + " s'est connecté!", "System", this.getTime());
             	this.message.add(message);
         		fireChanged();
         		this.changeUserCoordinate(response);
-        	} else {
+        	} else { //the currentUser is newer than the new one
         		fireChanged();
         		this.eventDirective = "WELCOME";
         	}            
     	}
     }
     
+    /**
+     * Handle a SET_OLD_USER directive from the server
+     * Remove the oldUser instance, add a new system message then update the view.
+     * @param oldUser
+     */
     public void deleteUserFromList(String oldUser)
     {
-    	//called by SET_OLD_USER directive
     	if(this.userExist(oldUser)) {
     		this.userList.remove(oldUser);
     		
@@ -174,25 +180,19 @@ public class ChatManager extends ListenableModel
         	this.message.add(message);
     		
     		this.eventDirective = "BYE";
-            fireChanged();
-            this.graphicsController.fireGraphicsChange(this.userList);
+            fireChanged(); //message-userList view
+            this.graphicsController.fireGraphicsChange(this.userList); //map view
     	}
-    }
-    
-    public boolean userExist(String username)
-    {
-    	return this.userList.containsKey(username);
     }
 
     /**
-     * Method which retrieves the list of the Tchatters
+     * Handle a SET_USERS_LIST directive from the server
+     * Send after a LOGIN directive and let us know every connected user
      * Just called after the user connection
-     * @return ArrayList
+     * @param userList
      */
     public void retrieveUsersList(String userList)
     {
-    	System.out.println(userList);
-    	//called by SET_USERS_LIST directive
         String[] userSplit = userList.split("<USER/>");
         for (int i = 0; i < userSplit.length; i++) {
         	this.eventDirective = "ALREADY_CONNECTED";
@@ -200,6 +200,11 @@ public class ChatManager extends ListenableModel
         }
     }
     
+    /**
+     * Handle a SET_NEW_COORDINATE directive from the server
+     * Update the coordinate of a given user (from directive content)
+     * @param response
+     */
     public void changeUserCoordinate(String response)
     {
     	//called by SET_NEW_COORDINATE directive
@@ -211,6 +216,10 @@ public class ChatManager extends ListenableModel
     	this.graphicsController.fireGraphicsChange(this.userList);
     }
     
+    /**
+     * Send a LOGOUT directive to the server
+     * Used when the current user close the chat window. Also turnoff properly the thread and the socket.
+     */
     public void logout()
     {
     	System.out.println("Sending LOGOUT directive to the server...");
@@ -229,6 +238,21 @@ public class ChatManager extends ListenableModel
 		}
     }
     
+    /**
+     * Check if a username exist in the userArray
+     * @param username
+     * @return boolean
+     */
+    public boolean userExist(String username)
+    {
+    	return this.userList.containsKey(username);
+    }
+    
+    
+    /**
+     * Return the current time (HH:mm:ss) in a String
+     * @return time
+     */
     private String getTime()
     {
     	Calendar cal = Calendar.getInstance();
@@ -237,24 +261,22 @@ public class ChatManager extends ListenableModel
     }
     
     /**
-     * return the current user
-     *
-     * @return
+     * Return the last message added.
+     * @return Message
      */
+    public Message getLastMessage()
+    {
+    	return this.message.get(this.message.size() -1);
+    }
+    
     public User getCurrentUser() {
         return currentUser;
 
     }
 
-    /**
-     * getter user list
-     *
-     * @return
-     */
     public HashMap<String, User> getUserList() {
         return this.userList;
     }
-
     
     public String getEventDirective()
     {
@@ -264,11 +286,6 @@ public class ChatManager extends ListenableModel
     public void setGraphicsController(UsersPanel gc)
     {
     	this.graphicsController = gc;
-    }
-    
-    public Message getLastMessage()
-    {
-    	return this.message.get(this.message.size() -1);
     }
 
 }

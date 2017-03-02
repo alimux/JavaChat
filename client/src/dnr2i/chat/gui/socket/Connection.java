@@ -5,13 +5,13 @@ import java.net.Socket;
 import dnr2i.chat.gui.Constants;
 
 /**
- * class which manages sockets, connection to the server You can setup SERVER &
- * PORT in constants file
- *
- * @author Alexandre DUCREUX & plbadille 02/2017
+ * A class for establishing connection to the server (socket)
+ * You can setup SERVER & PORT in constants file
+ * @author Alexandre DUCREUX & plabadille
+ * @since February, 2017
  */
-public class Connection {
-
+public class Connection 
+{
     private Socket socket;
 
     /**
@@ -36,7 +36,6 @@ public class Connection {
 
     /**
      * getter socket
-     *
      * @return socket
      */
     public Socket getSocket() {

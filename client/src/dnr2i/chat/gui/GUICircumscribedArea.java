@@ -7,20 +7,24 @@ import java.awt.GraphicsEnvironment;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
-import static javax.swing.JFrame.EXIT_ON_CLOSE;
 
 /**
  * JFrame of the circumscribed Area where we can move your own "avatar"
  * @author Alexandre DUCREUX & plabadille 
  * @since February, 2017
  */
-public class GUICircumscribedArea extends JFrame implements Runnable{
-
-    private ImageIcon icon;
-    private JFrame main;
+public class GUICircumscribedArea extends JFrame implements Runnable
+{
+	private static final long serialVersionUID = 1L;
+	private ImageIcon icon;
     private ChatManager chatManager;
 
-    public GUICircumscribedArea(ImageIcon ii, ChatManager chatManager) {
+    /**
+     * @param ii
+     * @param chatManager
+     */
+    public GUICircumscribedArea(ImageIcon ii, ChatManager chatManager) 
+    {
         this.icon = ii;
         this.chatManager = chatManager;
         init();
@@ -34,7 +38,8 @@ public class GUICircumscribedArea extends JFrame implements Runnable{
     /**
      * init JFrame
      */
-    public void init() {
+    public void init() 
+    {
         //JFrame options 
         this.setIconImage(icon.getImage());
         this.setPreferredSize(new Dimension(Constants.WINDOW_C_AREA_WIDTH, Constants.WINDOW_C_AREA_HEIGHT));
@@ -47,7 +52,8 @@ public class GUICircumscribedArea extends JFrame implements Runnable{
      * method which compute the position of the secondary JFrame
      * @return 
      */
-    public Dimension computeWindowPosition() {
+    public Dimension computeWindowPosition() 
+    {
         GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
         int width = gd.getDisplayMode().getWidth();
         int height = gd.getDisplayMode().getHeight();
@@ -58,8 +64,6 @@ public class GUICircumscribedArea extends JFrame implements Runnable{
     }
 
     @Override
-    public void run() {
-        
-    }
+    public void run() {}
 
 }

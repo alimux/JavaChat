@@ -1,9 +1,9 @@
 package dnr2i.chat.gui;
 
 /**
- * public Constants class which groups all constants using by the app
- *
- * @author Alexandr DUCREUX & plbadille 02/2017
+ * Constants class used to groups them in one file.
+ * @author Alexandre DUCREUX & plabadille 
+ * @since February, 2017
  */
 public class Constants {
 

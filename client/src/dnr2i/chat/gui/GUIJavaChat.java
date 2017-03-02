@@ -7,20 +7,20 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.net.URL;
 import javax.swing.*;
 import javax.swing.border.Border;
+
 
 /**
  * JFrame, mainFrame
  * @author Alexandre DUCREUX & plabadille
  * @since February, 2017
  */
-
-public class GUIJavaChat extends JFrame {
-
-    private final TopPanel topPanel;
+public class GUIJavaChat extends JFrame
+{
+	private static final long serialVersionUID = 1L;
+	private final TopPanel topPanel;
     private final DownPanel downPanel;
     private URL imgURL;
     private ImageIcon icon;
@@ -30,7 +30,8 @@ public class GUIJavaChat extends JFrame {
     /**
      * constructor call initFrame
      */
-    public GUIJavaChat() {
+    public GUIJavaChat() 
+    {
 
         super(Constants.JFRAMETITLE);
         chatManager = new ChatManager();
@@ -42,7 +43,8 @@ public class GUIJavaChat extends JFrame {
     /**
      * setup the JFrame
      */
-    private void initFrame() {
+    private void initFrame() 
+    {
 
         imgURL = getClass().getResource("chatIco.png");
         icon = new ImageIcon(imgURL);
@@ -75,7 +77,6 @@ public class GUIJavaChat extends JFrame {
         this.setBounds(0, 0, Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT);
         this.setLocation(computeWindowPosition().width,computeWindowPosition().height);
 
-        //login
         login();
 
     }
@@ -84,8 +85,8 @@ public class GUIJavaChat extends JFrame {
     /**
      * InputDialog to input a login name
      */
-    private void login() {
-
+    private void login() 
+    {
         //Input dialog of login
         String loginBox = (String) JOptionPane.showInputDialog(
                 this,
@@ -111,7 +112,8 @@ public class GUIJavaChat extends JFrame {
      * Method which compute the position on the main JFrame
      * @return 
      */
-    public Dimension computeWindowPosition(){
+    public Dimension computeWindowPosition()
+    {
         GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
         int width = gd.getDisplayMode().getWidth();
         int height = gd.getDisplayMode().getHeight();

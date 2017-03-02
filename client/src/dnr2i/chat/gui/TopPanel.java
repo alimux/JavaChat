@@ -12,38 +12,39 @@ import javax.swing.*;
 import dnr2i.util.event.ListenerModel;
 
 /**
- * Class which manage the top panel
+ * Class for managing the top panel
  * @author Alexandre DUCREUX & plabadille
  * @since February, 2017
  */
-public class TopPanel extends JPanel implements ListenerModel {
-
-    private JTextArea publicArea;
-    private JList usersList;
+public class TopPanel extends JPanel implements ListenerModel 
+{
+	private static final long serialVersionUID = 1L;
+	private JTextArea publicArea;
+    private JList<String> usersList;
     private ChatManager chatManager;
-    private final DefaultListModel model;
+    private final DefaultListModel<String> model;
 
     /**
      * constructor, call initPanel to initialize panel
-     *
      * @param cm
      */
-    public TopPanel(ChatManager cm) {
+    public TopPanel(ChatManager cm) 
+    {
         initPanel();
         this.chatManager = cm;
         chatManager.addModelListener(this);
-        model = new DefaultListModel();
+        model = new DefaultListModel<String>();
     }
 
     /**
-     * initilialize panel, using GroupLayout for a better showing
+     * Initialize panel, using GroupLayout for a better showing
      */
-    private void initPanel() {
-
+    private void initPanel() 
+    {
         publicArea = new JTextArea(25, 52);
         publicArea.setEditable(false);
 
-        usersList = new JList();
+        usersList = new JList<String>();
         usersList.setLayoutOrientation(JList.VERTICAL);
 
         //set Layout
@@ -65,9 +66,12 @@ public class TopPanel extends JPanel implements ListenerModel {
                                 .addComponent(usersList, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addContainerGap())
         );
-
     }
 
+    /**
+     * Handle fireChanged depending on the change, update the view.
+     * @see dnr2i.util.event.ListenerModel#modelChanged(java.lang.Object)
+     */
     @Override
     public void modelChanged(Object source) 
     {
@@ -95,6 +99,9 @@ public class TopPanel extends JPanel implements ListenerModel {
         
     }
     
+    /**
+     * Is called whenever a new user join or quit, update the view.
+     */
     private void updateUserList()
     {
     	Set<Entry<String, User>> set = this.chatManager.getUserList().entrySet();

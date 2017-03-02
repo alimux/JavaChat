@@ -4,17 +4,15 @@ import java.io.IOException;
 import java.net.ServerSocket;
 
 /**
- * A class for managing connection request
+ * A class for establishing connection with the server
  * @author plabadille, Alexandre DUCREUX
  * @since February, 2017
  *
  */
 public class ChatServerConnection implements Runnable 
 {
-	
 	private ServerSocket ss;
 	private ChatServer cs;
-	
 	public Thread t1;
 	
 	/**
@@ -38,7 +36,7 @@ public class ChatServerConnection implements Runnable
 		try {
 			while(true) {
 				System.out.println("Waiting for client to connect ..."); 
-				this.t1 = new Thread(new ChatServerClient(this.cs, ss.accept()));
+				this.t1 = new Thread(new ChatServerDirectiveManager(this.cs, ss.accept()));
 				this.t1.start();
 			}
 		} catch (IOException e) {

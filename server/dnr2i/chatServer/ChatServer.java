@@ -15,7 +15,7 @@ import java.util.Set;
 public class ChatServer 
 {
 
-	private HashMap<String, ChatServerClient> clients;
+	private HashMap<String, ChatServerDirectiveManager> clients;
 	private int nbClients = 0;
 	
 	/**
@@ -24,7 +24,7 @@ public class ChatServer
 	 */
 	public ChatServer(int port)
 	{	
-		this.clients = new HashMap<String, ChatServerClient>();
+		this.clients = new HashMap<String, ChatServerDirectiveManager>();
 		ServerSocket serverSocket = null;
 		try { 
 			System.out.println("Trying to bind port " + port + ", please wait  ...");
@@ -43,19 +43,19 @@ public class ChatServer
 	 * @param clientThread
 	 * @throws IOException
 	 */
-	public synchronized void addClient(ChatServerClient clientThread) throws IOException
+	public synchronized void addClient(ChatServerDirectiveManager clientThread) throws IOException
 	{
 		System.out.println("Adding new client: " + clientThread.getUsername() + " to client list");
 		
 		if (this.nbClients != 0) { 
-			Set<Entry<String, ChatServerClient>> set = this.clients.entrySet();
-			Iterator<Entry<String, ChatServerClient>> i = set.iterator();
+			Set<Entry<String, ChatServerDirectiveManager>> set = this.clients.entrySet();
+			Iterator<Entry<String, ChatServerDirectiveManager>> i = set.iterator();
 			
 			System.out.println("User connected: " + this.clients.size());
 			
 			//Notify others client:
 			while(i.hasNext()) {
-				Entry<String, ChatServerClient> me = i.next();
+				Entry<String, ChatServerDirectiveManager> me = i.next();
 				me.getValue().notifyNewUser(clientThread.getUsername() + "<END/>" + clientThread.getX() + "<END/>" + clientThread.getY());
 			}
 			//Send new client the users list:
@@ -76,14 +76,14 @@ public class ChatServer
 		System.out.println("Removing client: " + username + " from client list");
 		
 		if (this.nbClients > 1) {
-			Set<Entry<String, ChatServerClient>> set = this.clients.entrySet();
-			Iterator<Entry<String, ChatServerClient>> i = set.iterator();
+			Set<Entry<String, ChatServerDirectiveManager>> set = this.clients.entrySet();
+			Iterator<Entry<String, ChatServerDirectiveManager>> i = set.iterator();
 			
 			System.out.println("User connected: " + this.clients.size());
 			
 			//Notify others client:
 			while(i.hasNext()) {
-				Entry<String, ChatServerClient> me = i.next();
+				Entry<String, ChatServerDirectiveManager> me = i.next();
 				if (me.getKey() != username) {
 					me.getValue().notifyOldUser(username);
 				}
@@ -104,13 +104,13 @@ public class ChatServer
 	{
 		System.out.println("handling message: " + content + " from: " + username);
 		//We use an iterator to send the message to other client
-		Set<Entry<String, ChatServerClient>> set = this.clients.entrySet();
-		Iterator<Entry<String, ChatServerClient>> i = set.iterator();
+		Set<Entry<String, ChatServerDirectiveManager>> set = this.clients.entrySet();
+		Iterator<Entry<String, ChatServerDirectiveManager>> i = set.iterator();
 		
 		String out = username + "<END/>" + content;
 		System.out.println("User connected: " + this.clients.size());
 		while(i.hasNext()) {
-			Entry<String, ChatServerClient> me = i.next();
+			Entry<String, ChatServerDirectiveManager> me = i.next();
 			if (me.getKey() != username) {
 				//TODO: check the location
 				me.getValue().send(out);
@@ -120,11 +120,11 @@ public class ChatServer
 	
 	public synchronized void handleNewCoordinate(String input)
 	{
-		Set<Entry<String, ChatServerClient>> set = this.clients.entrySet();
-		Iterator<Entry<String, ChatServerClient>> i = set.iterator();
+		Set<Entry<String, ChatServerDirectiveManager>> set = this.clients.entrySet();
+		Iterator<Entry<String, ChatServerDirectiveManager>> i = set.iterator();
 		
 		while(i.hasNext()) {
-			Entry<String, ChatServerClient> me = i.next();
+			Entry<String, ChatServerDirectiveManager> me = i.next();
 			if (me.getKey() != input.split("<END/>")[0]) {
 				me.getValue().notifyNewCoordinate(input);
 			}
@@ -138,12 +138,12 @@ public class ChatServer
 	private String getUsersList()
 	{
 		System.out.println("Generating usersList...");
-		Set<Entry<String, ChatServerClient>> set = this.clients.entrySet();
-		Iterator<Entry<String, ChatServerClient>> i = set.iterator();
+		Set<Entry<String, ChatServerDirectiveManager>> set = this.clients.entrySet();
+		Iterator<Entry<String, ChatServerDirectiveManager>> i = set.iterator();
 		String response = "";
    
 		while(i.hasNext()) {
-			Entry<String, ChatServerClient> me = i.next();
+			Entry<String, ChatServerDirectiveManager> me = i.next();
 			response += me.getKey() + "<END/>" + me.getValue().getX() + "<END/>" + me.getValue().getY() + "<USER/>";
 		}
 		

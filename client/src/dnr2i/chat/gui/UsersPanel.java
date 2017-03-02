@@ -3,6 +3,7 @@ package dnr2i.chat.gui;
 import dnr2i.chat.manager.ChatManager;
 import dnr2i.chat.user.User;
 import dnr2i.util.event.ListenerModel;
+
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -15,18 +16,17 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JPanel;
 
 /**
  * Panel of the circumscribed Area
  * @author Alexandre DUCREUX & plabadille 
- *  @since February, 2017
+ * @since February, 2017
  */
-public class UsersPanel extends JPanel implements MouseListener, MouseMotionListener, ListenerModel {
-
-    private HashMap<String, User> userList;
+public class UsersPanel extends JPanel implements MouseListener, MouseMotionListener, ListenerModel 
+{
+	private static final long serialVersionUID = 1L;
+	private HashMap<String, User> userList;
     private User currentUser;
     private ChatManager chatManager;
     private int previousXPostion;
@@ -35,7 +35,13 @@ public class UsersPanel extends JPanel implements MouseListener, MouseMotionList
     private int currentYposition;
 
 
-    public UsersPanel(HashMap<String, User> userList, User currentUser, ChatManager chatManager) {
+    /**
+     * @param userList
+     * @param currentUser
+     * @param chatManager
+     */
+    public UsersPanel(HashMap<String, User> userList, User currentUser, ChatManager chatManager)
+    {
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
         this.userList = userList;
@@ -49,11 +55,15 @@ public class UsersPanel extends JPanel implements MouseListener, MouseMotionList
         init();
     }
 
-    public void init() {
+    public void init() 
+    {
         setBackground(Color.LIGHT_GRAY);
     }
 
 
+    /* (non-Javadoc)
+     * @see javax.swing.JComponent#paint(java.awt.Graphics)
+     */
     @Override
     public void paint(Graphics g) {
         //draw current user
@@ -98,7 +108,6 @@ public class UsersPanel extends JPanel implements MouseListener, MouseMotionList
     @Override
     public void mousePressed(MouseEvent me) 
     {
-        //System.out.println("Mouse Pressed x:" + me.getX() + " y:" + me.getY());
         previousXPostion = me.getX();
         previousYPosition = me.getY();
     }
@@ -108,7 +117,6 @@ public class UsersPanel extends JPanel implements MouseListener, MouseMotionList
     {
         int dx = me.getX() - previousXPostion;
         int dy = me.getY() - previousYPosition;
-//        System.out.println("Mouse Dragged x:" + currentXPosition + " y:" + currentYposition);
         previousXPostion = me.getX();
         previousYPosition = me.getY();
         currentXPosition += dx;
@@ -135,30 +143,20 @@ public class UsersPanel extends JPanel implements MouseListener, MouseMotionList
     	this.userList = userList;
     	repaint();
     }
-
-    @Override
-    public void mouseClicked(MouseEvent me) {
-
-    }
     
     @Override
-    public void mouseEntered(MouseEvent me) {
-
-    }
-
-    @Override
-    public void mouseExited(MouseEvent me) {
-
-    }
-
-    @Override
-    public void mouseMoved(MouseEvent me) {
-
-    }
-
-    @Override
-    public void modelChanged(Object source) {
+    public void modelChanged(Object source) 
+    {
         repaint();
     }
+
+    @Override
+    public void mouseClicked(MouseEvent me) {}
+    @Override
+    public void mouseEntered(MouseEvent me) {}
+    @Override
+    public void mouseExited(MouseEvent me) {}
+    @Override
+    public void mouseMoved(MouseEvent me) {}
     
 }

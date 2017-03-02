@@ -1,16 +1,13 @@
 
 package dnr2i.chat.manager;
 
-//import dnr2i.util.event.ListenableModel;
-
 /**
  * Class which defines Message
  * @author Alexandre DUCREUX & plabadille
  * @since February, 2017
  */
-public class Message //extends ListenableModel
+public class Message
 {
-    
     private String message;
     private String time;
     private String author;
@@ -34,6 +31,8 @@ public class Message //extends ListenableModel
 	{
 		return author;
 	}
+	
+	//unused yet.
     public String getStyle(String activeUser)
     {
     	String style;

@@ -1,14 +1,13 @@
-
 package dnr2i.util.event;
 
 import java.util.ArrayList;
 
 /**
- *
- * @Alex Ducreux
+ * @author Alexandre DUCREUX & plabadille
+ * @since February, 2017
  */
-public abstract class ListenableModel implements IListenableModel{
-    
+public abstract class ListenableModel implements IListenableModel
+{    
     private final ArrayList<ListenerModel> listeners;
     
     public ListenableModel()
@@ -29,8 +28,7 @@ public abstract class ListenableModel implements IListenableModel{
     }
     protected void fireChanged()
     {
-        for(ListenerModel l:listeners)
-        {
+        for(ListenerModel l:listeners) {
             l.modelChanged(this);
         }
     }
