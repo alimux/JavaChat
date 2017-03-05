@@ -115,9 +115,9 @@
   \chapter{Introduction}
 
     \section{Présentation du projet}
-    Le but de ce projet est de proposer une application permettant à plusieurs utilisateurs de communiquer entre eux par le biais d'un serveur sur le système du "chat". En outre, les utilisateurs de ce système pourront se déplacer au drag'n'drop sur une carte et voir les autres personnes présentent ainsi que leurs localisation. Cette "carte" fait l'originalité de l'application. En effet, seul les personnes se trouvant dans un certain rayon d'écoute, représenté par un cercle, pourront voir les messages envoyés par un autre utilisateur. 
+    Le but de ce projet est de proposer une application permettant à plusieurs utilisateurs de communiquer entre eux par le biais d'un serveur sur le système du "chat". En outre, les utilisateurs de ce système pourront se déplacer au drag'n'drop sur une carte et voir les autres personnes présentes ainsi que leur localisation. Cette "carte" fait l'originalité de l'application. En effet, seul les personnes se trouvant dans un certain rayon d'écoute, représenté par un cercle, pourront voir les messages envoyés par un autre utilisateur. 
     \medbreak
-    Ce projet est développé intégralement en Java en utilisant Swing et le système de socket et de thread. Le projet est découpé en deux grandes parties: le serveur qui permet de gérer l'interaction entre n utilisateurs ainsi que le client qui permet leurs permets d'avoir une interface et d'intéragir avec les autres.
+    Ce projet est développé intégralement en Java par le biais de l'utilisation de Swing, le système de socket et de thread. Le projet est découpé en deux grandes parties: le serveur qui permet de gérer l'interaction entre n utilisateurs ainsi que le client qui leurs permet d'avoir une interface et d'intéragir avec les autres.
     \bigbreak
     Au sujet de la répartition du travail, celle-ci a été assez simple:
     \begin{itemize}
@@ -176,7 +176,7 @@
       \caption{fig. découpage Group Layout (source : docs.oracle.com) }
     \end{figure}
     \bigbreak
-    Dans le cadre du MVC, Ce panel étant une Vue, il implémente un ListenerModel qui a chaque changement dans le modèle, affiche d’une part les nouveaux messages (sous réserve d'appartenance à la zone circonscrite de la personne envoyant le message) et d’autre part la liste mise à jour des « T’chateurs » présent sur le serveur.
+    Dans le cadre du MVC, Ce panel étant une Vue, il implémente un ListenerModel qui a chaque changement dans le modèle, affiche d’une part les nouveaux messages (sous réserve d'appartenance à la zone circonscrite de la personne envoyant le message) et d’autre part la liste mise à jour des « T’chateurs » présents sur le serveur.
 
     \section{Le panel inférieur}
     Tout comme le panel supérieur, celui-ci est organisé via l’utilisation du « GroupLayout » pour les mêmes raisons qu’évoquées précédemment.
@@ -194,9 +194,9 @@
     \medbreak
     Pour dessiner l’ensemble des avatars, la méthode paint est redéfinie. Celle-ci a été choisie car elle offre la possibilité, en faisant appel à la méthode mère « super.paint(g) », de rafraichir chaque frame et évite les artefacts graphiques en cas de mouvement des avatars.
     \medbreak
-    Pour l’affichage des avatars et pour un rendu plus fin, l’objet Graphics2D a été choisi. Celui-ci permet l’utilisation de l’anti-aliasing via la méthode : mainAvatar.setRenderingHint(RenderingHints.KEY\_ANTIALIASING,RenderingHints.VALUE\_ANTIALIAS\_ON);
+    Pour l’affichage des avatars et pour un rendu plus fin, l’objet Graphics2D a été choisi. Celui-ci permet l’utilisation de l’anti-aliasing via la méthode : mainAvatar.setRenderingHint\\(RenderingHints.KEY\_ANTIALIASING,RenderingHints.VALUE\_ANTIALIAS\_ON);
     \medbreak
-    L’avatar de l’utilisateur courant est dessiné via 3 composantes. Une composante \textbf{drawString} qui affiche son nom, une composante \textbf{fillOval} qui dessine son point et enfin \textbf{drawOval} qui détermine le cercle qui définit la zone circonscrite.
+    L’avatar de l’utilisateur courant est dessiné via 3 composantes. Une composante \textbf{drawString} qui affiche son nom, une composante \textbf{fillOval} qui dessine son point et enfin \textbf{drawOval} qui détermine le cercle définissant la zone circonscrite.
     \medbreak
     La position des avatars des différents T’chatteurs est mise à jour à chaque changement du modèle.
     \medbreak
@@ -210,7 +210,7 @@
       \item mouseReleased : on envoie au serveur les nouvelles coordonnées pour mise à jour.
     \end{itemize}
 
-    \section{Les classes messages et utilisateur}
+    \section{Les classes message et utilisateur}
       \subsection{Classe message}
         La classe message définit ce qu’est un message. Elle est pourvue de trois attributs:
         \begin{itemize}
@@ -219,7 +219,7 @@
           \item Author : l’auteur du message
         \end{itemize}
         \bigbreak
-        Elle dispose d’accesseurs associés et d’une méthode getStyle qui permet en fonction de l’utilisateur d’afficher une couleur au message (gris pour le serveur, bleu pour l’utilisateur courant et noir pour les autres T’chatteurs ). Notons que cette méthode n'est pour le moment pas utilisé car nécessiterait une transformation importante du Panel inférieur.
+        Elle dispose d’accesseurs associés et d’une méthode getStyle qui permet en fonction de l’utilisateur d’afficher une couleur au message (gris pour le serveur, bleu pour l’utilisateur courant et noir pour les autres T’chatteurs ). Notons que cette méthode n'est pour le moment pas utilisée car nécessiterait une transformation importante du Panel inférieur.
 
       \subsection{Classe utilisateur}
         La classe User définit ce qu’est un utilisateur. Celle-ci se compose de trois attributs également. Cette classe dérive de ListenableModel et ce afin d’informer tous changements au modèle via la fonction firechanged(). Elle dispose des accesseurs et mutateurs correspondants aux attributs.
@@ -237,21 +237,21 @@
     \end{figure}
 
     \bigbreak
-    Le schéma ci-dessus explique comment le serveur fonctionne par étape. Chaque étape est symbolisée par une fléche de la même couleur. Il faut bien noter ici que le thread de connexion est entièrement maitrisé par le socket serveur. Ce dernier ne communique pas avec le serveur. Il va capter les directives de LOGIN envoyées par les clients et se charger de leurs créer et associer un thread.
+    Le schéma ci-dessus explique comment le serveur fonctionne par étape. Chaque étape est symbolisée par une fléche de la même couleur. Il faut bien noter ici que le thread de connexion est entièrement maîtrisé par le socket serveur. Ce dernier ne communique pas avec le serveur. Il va capter les directives de LOGIN envoyées par les clients et se charger de leurs créer et associer un thread.
     \medbreak
     Ce thread sera attentif aux directives entrantes de son client et pourra lui envoyer des directives serveurs. Il communique directement avec le serveur et son client associé. Il faut noter que ce thread est le seul intermédiaire entre le serveur et le client, sans lui, ils ne peuvent plus communiquer. Notons enfin la communication entre le serveur et ses threads clients est "synchronized" afin d'éviter tout conflit d'accès aux données partagées (accès concurrentiel).
 
     \section{Le socket serveur}
-      Le socket serveur est créé avec pour seul argument le numéro de port sur lequel il devra communiquer. Dès sa création, celui-ci initialise une HashMap qui contiendra les futurs threads clients et créait un thread qui se chargera d'accepter les connexions clients.
+      Le socket serveur est créé avec pour seul argument le numéro de port sur lequel il devra communiquer. Dès sa création, celui-ci initialise une HashMap qui contiendra les futurs threads clients et crée un thread qui lui, se chargera d'accepter les connexions clients.
       \medbreak
-      Son rôle sera ici de choisir quelles informations envoyer à quel client (les informations seront envoyés et réceptionnées directement par le biais du thread client associé). Les threads clients feront donc appels à ses méthodes qui appeleront d'autres méthodes des threads clients concernés.
+      Son rôle sera ici de choisir quelles informations envoyer à quel client (les informations seront envoyés et réceptionnées directement par le biais du thread client associé). Les threads clients feront donc appels à ses méthodes qui appeleront elles mêmes, d'autres méthodes des threads clients concernés.
       \medbreak
       Vous trouverez dans les sous-sections ci-dessous des détails sur ses fonctionnalités principales.
 
       \subsection{Ajout de client}
         \say{\emph{public synchronized void addClient\(ChatServerDirectiveManager clientThread\) throws IOException}}
         \medbreak
-        Cette méthode est appelée par un thread client lors de sa création. Dans un premier temps elle permet de référencer le thread dans la HashMap du socket et dans un second d'appeler les threads clients déjà présent pour les informer de la connexion d'un nouvel utilisateur.
+        Cette méthode est appelée par un thread client lors de sa création. Dans un premier temps elle permet de référencer le thread dans la HashMap du socket et dans un second d'appeler les threads clients déjà présents pour les informer de la connexion d'un nouvel utilisateur.
         \medbreak
         Coté technique cette méthode est synchronized afin de gérer des potentiels accès concurentiels et utilise un itérateur pour parcourir la HashMap.
 
@@ -263,20 +263,20 @@
       \subsection{Gestion de message client}
         \say{\emph{public synchronized void handleClientMessage(String username, String content)}}
         \medbreak
-        Cette méthode est une des plus importante puisque c'est elle qui va déterminer quels utilisateurs pourront recevoir le message de tel autre en fonction de leurs coordonées respectives.
+        Cette méthode est une des plus importante puisque c'est elle qui va déterminer quels utilisateurs pourront recevoir le message de tel autre en fonction de leurs coordonnées respectives.
         \medbreak
         La zone d'écoute visible sur la carte dans l'interface utilisateur est un cercle et cette classe utilise donc une constante contenant le rayon de ce cercle (ici 75). La liste des threads utilisateurs est parcourue par le biais d'un itérateur et pour chacun d'entre eux la méthode \emph{canEar(int x\_center, int y\_center, int x, int y)} est appelée.
         \medbreak
-        Cette méthode utilise un théorème de Pythagore afin de vérifier si les coordonées de l'utilisateur sont dans le cercle ou non:
+        Cette méthode utilise un théorème de Pythagore afin de vérifier si les coordonnées de l'utilisateur sont dans le cercle ou non:
         \medbreak
-        \say{\emph{\textbf{(x - x\_center)² + (y - y\_center)² <= radius²} où x/y\_center représentent les coordonées de l'utilisateur qui a écrit le message.}}
+        \say{\emph{\textbf{(x - x\_center)² + (y - y\_center)² <= radius²} où x/y\_center représentent les coordonnées de l'utilisateur qui a écrit le message.}}
         \medbreak
         L'inférieur ou égal est utilisé afin de prendre en compte tous les utilisateurs dans et sur le cercle. Utiliser '>' représenterait les personnes à l'exterieur du cercle et '==' les utilisateurs se trouvant sur sa délimitation (son tracé).
 
-      \subsection{Gestion de changement de coordonée}
+      \subsection{Gestion de changement de coordonnées}
         \say{\emph{public synchronized void handleNewCoordinate(String input)}}
         \medbreak
-        Cette méthode est utilisée pour prévenir le changement de coordonée d'un utilisateur à tous les autres.
+        Cette méthode est utilisée pour prévenir le changement de coordonnées d'un utilisateur à tous les autres.
 
       \subsection{Génération de la liste des clients connectés}
         \say{\emph{private String getUsersList()}}
@@ -286,21 +286,21 @@
     \section{Le thread de connexion}
       Ce thread est très simple. Il attend l'arrivée de demande de connexion par le biais de .accept(). Il faut bien noter que tant qu'aucune demande de connexion n'arrive, le thread se trouve dans un etat "en attente" géré par automatiquement par ".accept()". La boucle ne tourne donc qu'une seule fois par connexion.
       \medbreak
-      Lorsqu'une connexion est demandée ce thread créait un thread client associé. Toutes les futures communication auront alors lieu entre le client et son thread associé coté serveur.
+      Lorsqu'une connexion est demandée, ce thread créé un thread client associé. Toutes les futures communications auront alors lieu entre le client et son thread associé coté serveur.
 
-    \section{Le gestionnaire de directive (thread client)}
+    \section{Le gestionnaire de directives (thread client)}
       Dès sa construction, le thread client ouvre le buffer d'entrée et prépare celui de sortie afin de pouvoir communiquer avec le client. Il se met ensuite en attente de reception du login de l'utilisateur (et ce directement dans le constructeur). Si jamais la directive de connexion reçue n'est pas correcte, il met fin à sa construction et se ferme.
       \medbreak
       Dans le cas où la directive de connexion est correcte, il est alors ajouté à la liste des threads clients dans le serveur socket et commence à écouter les directives clients. De la même façon que le thread de connexion, "readLine()" met automatiquement en pause le thread tant qu'il ne reçoit aucune directive. 
       \medbreak
-      Le serveur peut à tout moment demander au thread d'effectuer une action, généralement envoyer une information au client mais également changer ses coordonées par exemple. 
+      Le serveur peut à tout moment demander au thread d'effectuer une action, généralement envoyer une information au client mais également changer ses coordonnées par exemple. 
       \medbreak
       Quand le thread reçoit une directive client, il la traite par le biais d'un switch et effectue l'action correspondante. Cette action consiste généralement à appeler une ou plusieurs fonction du serveur socket qui demandera ensuite à chacun des threads clients impliqués d'envoyer la réponse appropriée à son client.
 
   \chapter{Interaction entre le serveur et le client}
 
     \section{L'interaction client-serveur}
-    Chacun des protocoles envoyés au client par le serveur (et inversement) fonctionnent de la même façon. On envoit dans un premier temps le nom du protocole puis dans un second sont contenu (avec une forme normalisée). Notons qu'aucune réponse n'est attendue, dans certain cas le serveur ou le client répondent aux protocoles par un autre mais celà n'est pas considéré comme étant une réponse (mais bien un nouveau protocole).
+    Chacun des protocoles envoyés au client par le serveur (et inversement) fonctionnent de la même façon. On envoie dans un premier temps le nom du protocole puis dans un second son contenu (avec une forme normalisée). Notons qu'aucune réponse n'est attendue, dans certain cas le serveur ou le client répondent aux protocoles par un autre mais celà n'est pas considéré comme étant une réponse (mais bien un nouveau protocole).
     \bigbreak
     \underline{\textbf{Protocoles Client vers Serveur:}}
     \medbreak
@@ -308,10 +308,10 @@
       \item \textbf{Protocole pour connecter un client au serveur}
         \begin{itemize}
           \item Nom du protocole: "LOGIN"
-          \item Forme du contenu envoyé: USERNAME</END>X\_POSITION</END>Y\_POSITION
+          \item Forme du contenu envoyé: USERNAME</END>X\_POSITION</END>\\Y\_POSITION
           \item Réaction du serveur:
             \begin{itemize}
-              \item Le serveur créait un nouveau thread associé au client.
+              \item Le serveur créé un nouveau thread associé au client.
               \item Un protocole "SET\_USERS\_LIST" est envoyé au client venant de se connecter
               \item Un protocole "SET\_NEW\_USER" est envoyé à tous les autres clients.
             \end{itemize}
@@ -322,11 +322,11 @@
           \item Forme du contenu envoyé: USERNAME</END>MESSAGE</END>TIME
           \item Réaction du serveur: un protocole "GET\_MSG" est envoyé à tous les clients éligibles.
         \end{itemize}
-      \item \textbf{Protocole pour mettre à jour ses coordonées suite à un déplacement}
+      \item \textbf{Protocole pour mettre à jour ses coordonnées suite à un déplacement}
         \begin{itemize}
           \item Nom du protocole: "SET\_COORDINATE"
-          \item Forme du contenu envoyé: USERNAME</END>X\_POSITION</END>Y\_POSITION
-          \item Réaction du serveur: un protocole "SET\_NEW\_COORDINATE" est envoyé à tous les clients exceptés celui-ci et mise à jour des coordonées de l'utilisateur au niveau du serveur.
+          \item Forme du contenu envoyé: USERNAME</END>X\_POSITION</END>\\Y\_POSITION
+          \item Réaction du serveur: un protocole "SET\_NEW\_COORDINATE" est envoyé à tous les clients exceptés celui-ci et mise à jour des coordonnées de l'utilisateur au niveau du serveur.
         \end{itemize}
       \item \textbf{Protocole pour déconnecter un client du serveur}
         \begin{itemize}
@@ -343,13 +343,13 @@
       \item \textbf{Protocole pour envoyer la liste des clients connectés à un client venant de se connecter}
         \begin{itemize}
           \item Nom du protocole: "SET\_USERS\_LIST"
-          \item Forme du contenu envoyé: USERNAME</END>X\_POSITION</END>Y\_POSITION</USER> * n user.
+          \item Forme du contenu envoyé: USERNAME</END>X\_POSITION</END>\\Y\_POSITION</USER> * n user.
           \item Réaction du client: ajout des nouveaux utilisateurs et mise à jour de la vue et de la vue graphique.
         \end{itemize}
       \item \textbf{Protocole pour informer qu'un nouvel utilisateur vient de se connecter}
         \begin{itemize}
           \item Nom du protocole: "SET\_NEW\_USER"
-          \item Forme du contenu envoyé: USERNAME</END>X\_POSITION</END>Y\_POSITION
+          \item Forme du contenu envoyé: USERNAME</END>X\_POSITION</END>\\Y\_POSITION
           \item Réaction du client: ajout du nouvel utilisateur et mise à jour de la vue.
         \end{itemize}
       \item \textbf{Protocole pour distribuer un message aux clients éligibles}
@@ -361,8 +361,8 @@
       \item \textbf{Protocole pour informer du changement de position d'un utilisateur}
         \begin{itemize}
           \item Nom du protocole: "SET\_NEW\_COORDINATE"
-          \item Forme du contenu envoyé: USERNAME</END>X\_POSITION</END>Y\_POSITION
-          \item Réaction du client: mise à jour des coordonées de l'utilisateur concerné et mise à jour de la vue graphique.
+          \item Forme du contenu envoyé: USERNAME</END>X\_POSITION</END>\\Y\_POSITION
+          \item Réaction du client: mise à jour des coordonnées de l'utilisateur concerné et mise à jour de la vue graphique.
         \end{itemize}
       \item \textbf{Protocole pour informer qu'un utilisateur vient de se déconnecter}
         \begin{itemize}
@@ -380,23 +380,23 @@
       Notons enfin que cette classe "fire" deux types de changement, le traditionnel "\textbf{fireChanged()}" qui est utilisé pour mettre à jour la vue (message, liste des utilisateurs...) mais également une méthode "\textbf{fireGraphicsChange()}" afin d'actualiser la carte.
 
     \section{Le thread client de gestion des directives}
-      Cette classe (\emph{ClientIncomingDirective}) va uniquement servir à recevoir et interpréter les directives envoyées par le serveur. Elle fonctionne par le biais d'un "\textbf{readLine()}" permettant de mettre en pause le thread automatiquement quand aucune donnée n'est transmise et d'appliquer la méthode associée à une directive dans le manager client. Cette interprétation des directives ce fait très simplement par le biais d'un switch.
+      Cette classe (\emph{ClientIncomingDirective}) va uniquement servir à recevoir et interpréter les directives envoyées par le serveur. Elle fonctionne par le biais d'un "\textbf{readLine()}" permettant de mettre en pause le thread automatiquement quand aucune donnée n'est transmise et d'appliquer la méthode associée à une directive dans le manager client. Cette interprétation des directives se fait très simplement par le biais d'un switch.
       \medbreak
       Il faut enfin noter que cette classe n'est pas capable d'envoyer des directives au serveur, elle se contente uniquement de les recevoir.
 
   \chapter{Conclusion}
 
     \section{Difficultés rencontrées}
-      La compréhension du système de socket et de thread, bien qu'explicité en cours, n'a pas été évident. La logique de leurs fonctionnements est inhabituels et il a fallut bien la comprendre avant de réussir à l'utiliser correctement.
+      La compréhension du système de socket et de thread, bien qu'explicitée en cours, n'a pas été évidente. La logique de leurs fonctionnements est inhabituelle, il a donc fallut saisir l'ensemble des tenants et aboutissants, afin de réussir à l'utiliser correctement.
       \medbreak
-      Le manque de temps et de sommeil induit pas ces dernières semaines très chargées en projet sur des technologies et langages totalement différents.
+      Le manque de temps et de sommeil induit pas ces dernières semaines très chargées en projet sur des technologies et langages aussi divers que variés.
 
-    \section{Apport personnel}
-      Tout d'abord nous somme heureux d'avoir pu développer une application executable et visuelle hors console.
+    \section{Apports personnels}
+      Tout d'abord nous sommes heureux d'avoir pu développer une application exécutable et visuelle hors console.
       \medbreak
-      Nous avons acquéris de nouvelles compétences concernant la logique serveur, les threads et les interfaces graphiques en Java.
+      Nous avons acquis de nouvelles compétences concernant la logique serveur, les threads et interfaces graphiques en Java.
       \medbreak
-      En sus des nouvelles compétences acquises,  cela nous a permis de contempler de nouvelles perspectives quand à ce qu'on peut espérer réaliser  avec java, en particulier avec les librairies graphiques.
+      En sus des nouvelles compétences acquises,  cela nous a permis de contempler de nouvelles perspectives quant à ce qu'on peut espérer réaliser  avec java, en particulier avec les librairies graphiques.
       \medbreak
       Et comme d'habitude, ce fut un plaisir certain de travailler en groupe, en particulier dans celui-ci qui à partagé la même motivation, implication et cohérence.
 
